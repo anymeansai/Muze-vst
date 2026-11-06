@@ -9,6 +9,16 @@ you point CMake at an AAX SDK.
 > This project is an independent clone for learning and personal use. It is not affiliated with, endorsed by or
 > derived from the code of muze.fyi. Preset names are genre/style descriptions, not artist names.
 
+## Screenshots
+
+| Simple mode | Advanced mode (chain editor) |
+| --- | --- |
+| ![Simple mode](docs/screenshots/muze_mix_simple.png) | ![Advanced mode](docs/screenshots/muze_mix_advanced.png) |
+
+| Preset browser | Analyze | Muze Auto Key |
+| --- | --- | --- |
+| ![Presets](docs/screenshots/muze_presets.png) | ![Analyze](docs/screenshots/muze_analyze.png) | ![Auto Key](docs/screenshots/autokey.png) |
+
 ## Features
 
 | Muze feature | This replica |
