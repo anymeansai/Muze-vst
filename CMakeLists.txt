@@ -86,8 +86,8 @@ target_link_libraries(MuzeCore INTERFACE
 # ---------------------------------------------------------------------------
 juce_add_plugin(Muze
     PRODUCT_NAME                "Muze"
-    COMPANY_NAME                "Muze Replica"
-    BUNDLE_ID                   "fyi.muze.replica.muze"
+    COMPANY_NAME                "AnyMeans"
+    BUNDLE_ID                   "ai.anymeans.muze"
     PLUGIN_MANUFACTURER_CODE    Mzrp
     PLUGIN_CODE                 Muz1
     FORMATS                     ${MUZE_FORMATS}
@@ -123,8 +123,8 @@ target_link_libraries(Muze PRIVATE MuzeCore juce::juce_recommended_lto_flags)
 if (MUZE_BUILD_AUTOKEY)
     juce_add_plugin(MuzeAutoKey
         PRODUCT_NAME                "Muze Auto Key"
-        COMPANY_NAME                "Muze Replica"
-        BUNDLE_ID                   "fyi.muze.replica.autokey"
+        COMPANY_NAME                "AnyMeans"
+        BUNDLE_ID                   "ai.anymeans.muzeautokey"
         PLUGIN_MANUFACTURER_CODE    Mzrp
         PLUGIN_CODE                 Mzak
         FORMATS                     ${MUZE_FORMATS}

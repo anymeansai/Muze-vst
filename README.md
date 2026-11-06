@@ -1,13 +1,10 @@
-# Muze (open-source replica)
+# Muze
 
-A from-scratch, open-source re-creation of the **Muze** vocal plugin ([muze.fyi](https://www.muze.fyi)):
-one plugin that takes a raw vocal to a finished mix in seconds, plus the free **Muze Auto Key** companion.
+**Muze** is an open-source vocal plugin: one plugin that takes a raw vocal to a finished mix in seconds, plus the
+free **Muze Auto Key** companion that finds the song key for you.
 
 Built with [JUCE 8](https://juce.com). Ships as **VST3**, **AU** (macOS) and **Standalone**; **AAX** builds when
 you point CMake at an AAX SDK.
-
-> This project is an independent clone for learning and personal use. It is not affiliated with, endorsed by or
-> derived from the code of muze.fyi. Preset names are genre/style descriptions, not artist names.
 
 ## Screenshots
 
@@ -21,15 +18,14 @@ you point CMake at an AAX SDK.
 
 ## Features
 
-| Muze feature | This replica |
-| --- | --- |
-| 70+ artist-inspired presets (59 main vocal + 37 ad-lib) | 96 factory presets, grouped by genre: Pop, R&B, Trap, Rage, Hip-Hop, Soul, Afrobeats, Indie, Hyperpop, Plugg |
-| 27 vocal effects in one plugin, add/remove/drag to re-order | 27 modules (below), free ordering, per-module bypass, drag-and-drop chain strip |
-| Simple and Advanced mode | Simple = 6 macros (Tune, Clean, Tone, Drive, Width, Space) that bend the preset without editing it. Advanced = full chain editor with every parameter |
-| Auto Key | Chroma/Krumhansl key finder inside Muze (detect from the vocal) **and** the separate *Muze Auto Key* plugin for the instrumental/master bus, linked to Muze through a tiny shared file |
-| Analyze: auto mix suggestions | Listens to the raw vocal (level, noise floor, dynamics, mud, presence, sibilance, air) and proposes Low Cut, Gate, De-Esser, Compressor and EQ settings you can apply in one click |
-| Community tab: presets shared by other users | Local community library (`Documents/Muze/Community/*.muzepreset`): share, import, load. No online backend |
-| Key display | Key + scale selectors in the header (9 scales incl. chromatic, pentatonic, blues) |
+- **96 presets**: 59 main-vocal and 37 ad-lib chains grouped by genre (Pop, R&B, Trap, Rage, Hip-Hop, Soul, Afrobeats, Indie, Hyperpop, Plugg). Every preset is a full effect chain you can open and edit.
+- **27 vocal effects in one plugin**: add, remove and drag effects into any order, with per-module bypass.
+- **Simple and Advanced mode**: Simple gives six macros (Tune, Clean, Tone, Drive, Width, Space) that bend the loaded preset without editing it. Advanced exposes every parameter of every effect.
+- **Tune**: real-time monophonic pitch correction (YIN detection + period-synchronous shifter) with Amount, Speed and Humanize, snapping to the selected key and scale. Latency is reported to the host only while Tune is active.
+- **Auto Key**: a chroma-based key finder inside Muze (detect from the vocal itself) **and** the separate *Muze Auto Key* plugin for the instrumental or master bus, linked to Muze through a small shared file so the key follows automatically.
+- **Analyze**: listens to the raw vocal (level, noise floor, dynamics, mud, presence, sibilance, air) and proposes Low Cut, Gate, De-Esser, Compressor and EQ settings you can apply in one click.
+- **Community tab**: a local shared-preset library (`Documents/Muze/Community/*.muzepreset`) to share, import and load chains from other users. No online account needed.
+- **Key display**: key and scale selectors in the header, with 9 scales including chromatic, pentatonic and blues.
 
 ### The 27 modules
 
