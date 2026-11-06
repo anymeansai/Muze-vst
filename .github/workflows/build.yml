@@ -158,10 +158,11 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            artifacts/Muze-macOS/Muze-macOS.zip
-            artifacts/Muze-Windows/Muze-Windows.zip
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --generate-notes \
+            artifacts/Muze-macOS/Muze-macOS.zip \
+            artifacts/Muze-Windows/Muze-Windows.zip \
             artifacts/Muze-Linux/Muze-Linux.tar.gz
-          generate_release_notes: true
