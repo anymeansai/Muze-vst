@@ -129,18 +129,18 @@ void HeaderBar::paint (juce::Graphics& g)
     g.drawLine (0.f, (float) getHeight() - 0.5f, (float) getWidth(), (float) getHeight() - 0.5f);
 
     // logo
-    auto logo = getLocalBounds().removeFromLeft (120).reduced (14, 10);
+    auto logo = getLocalBounds().removeFromLeft (168).reduced (14, 10);
     g.setColour (colours::accent());
     g.fillRoundedRectangle (logo.removeFromLeft (30).toFloat().reduced (2.f), 7.f);
     g.setColour (colours::text());
-    g.setFont (font (22.f, true));
+    g.setFont (font (19.f, true));
     g.drawText ("VOCALYST", logo.withTrimmedLeft (6), juce::Justification::centredLeft);
 }
 
 void HeaderBar::resized()
 {
     auto r = getLocalBounds().reduced (10, 10);
-    r.removeFromLeft (112);
+    r.removeFromLeft (158);
 
     // preset navigation
     prevBtn.setBounds (r.removeFromLeft (30).reduced (0, 6));
