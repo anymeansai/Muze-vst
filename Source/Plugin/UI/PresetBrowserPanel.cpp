@@ -1,9 +1,9 @@
 #include "PresetBrowserPanel.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-PresetBrowserPanel::PresetBrowserPanel (MuzeProcessor& p) : processor (p)
+PresetBrowserPanel::PresetBrowserPanel (VocalystProcessor& p) : processor (p)
 {
     for (auto* b : { &catMain, &catAdlib, &catUser }) addAndMakeVisible (b);
     catMain.onClick  = [this] { setCategory (MainVocal); };
@@ -33,10 +33,10 @@ PresetBrowserPanel::PresetBrowserPanel (MuzeProcessor& p) : processor (p)
     refreshUserPresets();
     const bool adlib = (bool) processor.getUiProperty ("presetAdlib", false);
     setCategory (adlib ? Adlib : MainVocal);
-    processor.addMuzeListener (this);
+    processor.addVocalystListener (this);
 }
 
-PresetBrowserPanel::~PresetBrowserPanel() { processor.removeMuzeListener (this); }
+PresetBrowserPanel::~PresetBrowserPanel() { processor.removeVocalystListener (this); }
 
 void PresetBrowserPanel::refreshUserPresets()
 {
@@ -100,7 +100,7 @@ void PresetBrowserPanel::presetChanged()
     for (int i = 0; i < (int) visible.size(); ++i) if (visible[(size_t) i]->name == name) sel = i;
     if (sel >= 0) presetBox.selectRow (sel, true, true); else presetBox.deselectAllRows();
     if (sel >= 0) description.setText (visible[(size_t) sel]->description, juce::dontSendNotification);
-    else description.setText (category == User ? "Your saved presets live in Documents/Muze/Presets." : "Click a preset to load it. Every preset is a full chain you can edit in the MIX tab.", juce::dontSendNotification);
+    else description.setText (category == User ? "Your saved presets live in Documents/Vocalyst/Presets." : "Click a preset to load it. Every preset is a full chain you can edit in the MIX tab.", juce::dontSendNotification);
     presetBox.repaint();
 }
 
@@ -172,7 +172,7 @@ void PresetBrowserPanel::PresetModel::paintListBoxItem (int row, juce::Graphics&
     g.setColour (colours::textDim());
     g.setFont (font (11.5f));
     juce::String sub = p.description;
-    if (p.author.isNotEmpty() && p.author != "Muze") sub = "by " + p.author + "  -  " + sub;
+    if (p.author.isNotEmpty() && p.author != "Vocalyst") sub = "by " + p.author + "  -  " + sub;
     g.drawText (sub, inner, juce::Justification::centredLeft);
     // chain length chip
     g.setColour (colours::outline());
@@ -213,4 +213,4 @@ void PresetBrowserPanel::resized()
     presetBox.setBounds (r);
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

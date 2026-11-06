@@ -4,7 +4,7 @@
 #include <atomic>
 #include <vector>
 
-namespace muze
+namespace vocalyst
 {
 
 // Listens to the raw vocal and produces mix suggestions (the "Analyze" feature).
@@ -45,4 +45,4 @@ private:
     std::atomic<float> peak { 0.f }, noiseFloor { 1.f }, frames { 0.f }, activeFrames { 0.f };
 };
 
-} // namespace muze
+} // namespace vocalyst

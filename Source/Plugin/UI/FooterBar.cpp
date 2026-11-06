@@ -1,6 +1,6 @@
 #include "FooterBar.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 void LevelMeter::paint (juce::Graphics& g)
@@ -22,7 +22,7 @@ void LevelMeter::paint (juce::Graphics& g)
     }
 }
 
-FooterBar::FooterBar (MuzeProcessor& p)
+FooterBar::FooterBar (VocalystProcessor& p)
     : processor (p),
       inKnob ("INPUT", p.apvts.getParameter (ids::inGain), colours::accent2()),
       mixKnob ("MIX", p.apvts.getParameter (ids::mix)),
@@ -71,4 +71,4 @@ void FooterBar::resized()
     hint.setBounds (r);
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

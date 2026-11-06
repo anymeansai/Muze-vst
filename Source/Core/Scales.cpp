@@ -1,7 +1,7 @@
 #include "Scales.h"
 #include <cmath>
 
-namespace muze::scales
+namespace vocalyst::scales
 {
 
 const juce::StringArray& keyNames()
@@ -64,4 +64,4 @@ juce::String keyName (int key, int scaleIndex)
     return keyNames()[juce::jlimit (0, 11, key)] + " " + scaleNames()[juce::jlimit (0, kNumScales - 1, scaleIndex)];
 }
 
-} // namespace muze::scales
+} // namespace vocalyst::scales

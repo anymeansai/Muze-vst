@@ -1,9 +1,9 @@
 #include "ModulePanel.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-ModulePanel::ModulePanel (MuzeProcessor& p) : processor (p)
+ModulePanel::ModulePanel (VocalystProcessor& p) : processor (p)
 {
     title.setFont (font (18.f, true));
     addAndMakeVisible (title);
@@ -107,4 +107,4 @@ void ModulePanel::resized()
         k->setBounds (cellFor (idx++).reduced (4, 2));
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

@@ -1,18 +1,18 @@
 #pragma once
-#include "MuzeLookAndFeel.h"
-#include "../MuzeProcessor.h"
+#include "VocalystLookAndFeel.h"
+#include "../VocalystProcessor.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 class HeaderBar : public juce::Component,
-                  private MuzeProcessor::Listener,
+                  private VocalystProcessor::Listener,
                   private juce::Timer
 {
 public:
     enum Tab { Presets = 0, Mix = 1, Community = 2 };
 
-    explicit HeaderBar (MuzeProcessor&);
+    explicit HeaderBar (VocalystProcessor&);
     ~HeaderBar() override;
 
     std::function<void (int)> onTabChanged;
@@ -29,7 +29,7 @@ private:
     void refresh();
     void showAutoKeyMenu();
 
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     juce::TextButton prevBtn { "<" }, nextBtn { ">" };
     juce::Label presetName, presetMeta;
     PillButton tabPresets { "PRESETS" }, tabMix { "MIX" }, tabCommunity { "COMMUNITY" };
@@ -40,4 +40,4 @@ private:
     int currentTab = 0;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

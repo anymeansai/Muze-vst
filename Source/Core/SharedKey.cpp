@@ -1,32 +1,32 @@
 #include "SharedKey.h"
 
-namespace muze::sharedkey
+namespace vocalyst::sharedkey
 {
 
-juce::File muzeDataDirectory()
+juce::File vocalystDataDirectory()
 {
-    auto dir = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory).getChildFile ("Muze");
+    auto dir = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory).getChildFile ("Vocalyst");
     dir.createDirectory();
     return dir;
 }
 
 juce::File presetsDirectory()
 {
-    auto d = juce::File::getSpecialLocation (juce::File::userDocumentsDirectory).getChildFile ("Muze").getChildFile ("Presets");
+    auto d = juce::File::getSpecialLocation (juce::File::userDocumentsDirectory).getChildFile ("Vocalyst").getChildFile ("Presets");
     d.createDirectory();
     return d;
 }
 
 juce::File communityDirectory()
 {
-    auto d = juce::File::getSpecialLocation (juce::File::userDocumentsDirectory).getChildFile ("Muze").getChildFile ("Community");
+    auto d = juce::File::getSpecialLocation (juce::File::userDocumentsDirectory).getChildFile ("Vocalyst").getChildFile ("Community");
     d.createDirectory();
     return d;
 }
 
 juce::File file()
 {
-    return muzeDataDirectory().getChildFile ("autokey.json");
+    return vocalystDataDirectory().getChildFile ("autokey.json");
 }
 
 bool write (int key, int scale, float confidence, const juce::String& source)
@@ -58,4 +58,4 @@ Info read()
     return info;
 }
 
-} // namespace muze::sharedkey
+} // namespace vocalyst::sharedkey

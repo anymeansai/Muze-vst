@@ -1,20 +1,20 @@
 #pragma once
-#include "MuzeLookAndFeel.h"
-#include "../MuzeProcessor.h"
+#include "VocalystLookAndFeel.h"
+#include "../VocalystProcessor.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 // Knobs for the currently selected module.
 class ModulePanel : public juce::Component
 {
 public:
-    explicit ModulePanel (MuzeProcessor&);
+    explicit ModulePanel (VocalystProcessor&);
     void setModule (ModuleId id);
     void paint (juce::Graphics&) override;
     void resized() override;
 private:
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     ModuleId current = ModuleId::Count;
     juce::Label title, description, category;
     juce::ToggleButton power;
@@ -26,4 +26,4 @@ private:
     std::vector<std::unique_ptr<juce::ComboBoxParameterAttachment>> comboAtts;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

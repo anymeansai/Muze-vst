@@ -1,9 +1,9 @@
 #include "HeaderBar.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-HeaderBar::HeaderBar (MuzeProcessor& p) : processor (p)
+HeaderBar::HeaderBar (VocalystProcessor& p) : processor (p)
 {
     for (auto* b : { &prevBtn, &nextBtn })
     {
@@ -49,14 +49,14 @@ HeaderBar::HeaderBar (MuzeProcessor& p) : processor (p)
     analyzeBtn.setColour (juce::TextButton::buttonColourId, colours::accent2().withAlpha (0.25f));
     analyzeBtn.onClick = [this] { if (onAnalyze) onAnalyze(); };
 
-    processor.addMuzeListener (this);
+    processor.addVocalystListener (this);
     refresh();
     startTimerHz (4);
 }
 
 HeaderBar::~HeaderBar()
 {
-    processor.removeMuzeListener (this);
+    processor.removeVocalystListener (this);
 }
 
 void HeaderBar::setTab (int tab)
@@ -88,12 +88,12 @@ void HeaderBar::showAutoKeyMenu()
 {
     juce::PopupMenu m;
     auto shared = sharedkey::read();
-    juce::String sharedText = "Pull key from Muze Auto Key";
+    juce::String sharedText = "Pull key from Vocalyst Auto Key";
     if (shared.valid)
         sharedText += " (" + scales::keyName (shared.key, shared.scale) + ", " + juce::String ((int) (shared.confidence * 100.f)) + "%)";
     m.addSectionHeader ("Auto Key");
     m.addItem (1, sharedText, shared.valid);
-    m.addItem (2, "Link: follow Muze Auto Key automatically", true, processor.isAutoKeyLinked());
+    m.addItem (2, "Link: follow Vocalyst Auto Key automatically", true, processor.isAutoKeyLinked());
     m.addSeparator();
     auto est = processor.inputKeyDetector().estimate();
     juce::String detText = "Detect key from this vocal";
@@ -134,7 +134,7 @@ void HeaderBar::paint (juce::Graphics& g)
     g.fillRoundedRectangle (logo.removeFromLeft (30).toFloat().reduced (2.f), 7.f);
     g.setColour (colours::text());
     g.setFont (font (22.f, true));
-    g.drawText ("MUZE", logo.withTrimmedLeft (6), juce::Justification::centredLeft);
+    g.drawText ("VOCALYST", logo.withTrimmedLeft (6), juce::Justification::centredLeft);
 }
 
 void HeaderBar::resized()
@@ -170,4 +170,4 @@ void HeaderBar::resized()
     tabCommunity.setBounds (tabs.reduced (2, 0));
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

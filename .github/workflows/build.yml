@@ -21,15 +21,15 @@ jobs:
           - name: macOS
             os: macos-14
             cmake_extra: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
-            tests: build/MuzeTests_artefacts/Release/MuzeTests
+            tests: build/VocalystTests_artefacts/Release/VocalystTests
           - name: Windows
             os: windows-2022
             cmake_extra: ""
-            tests: build/MuzeTests_artefacts/Release/MuzeTests.exe
+            tests: build/VocalystTests_artefacts/Release/VocalystTests.exe
           - name: Linux
             os: ubuntu-22.04
             cmake_extra: ""
-            tests: build/MuzeTests_artefacts/Release/MuzeTests
+            tests: build/VocalystTests_artefacts/Release/VocalystTests
 
     steps:
       - uses: actions/checkout@v4
@@ -59,30 +59,30 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           set -e
-          OUT=dist/Muze-macOS
+          OUT=dist/Vocalyst-macOS
           mkdir -p "$OUT/VST3" "$OUT/AU" "$OUT/Standalone"
-          for bundle in build/Muze_artefacts/Release/VST3/*.vst3 build/MuzeAutoKey_artefacts/Release/VST3/*.vst3; do
+          for bundle in build/Vocalyst_artefacts/Release/VST3/*.vst3 build/VocalystAutoKey_artefacts/Release/VST3/*.vst3; do
             codesign --force --deep --sign - "$bundle"
             cp -R "$bundle" "$OUT/VST3/"
           done
-          for bundle in build/Muze_artefacts/Release/AU/*.component build/MuzeAutoKey_artefacts/Release/AU/*.component; do
+          for bundle in build/Vocalyst_artefacts/Release/AU/*.component build/VocalystAutoKey_artefacts/Release/AU/*.component; do
             codesign --force --deep --sign - "$bundle"
             cp -R "$bundle" "$OUT/AU/"
           done
-          for app in build/Muze_artefacts/Release/Standalone/*.app build/MuzeAutoKey_artefacts/Release/Standalone/*.app; do
+          for app in build/Vocalyst_artefacts/Release/Standalone/*.app build/VocalystAutoKey_artefacts/Release/Standalone/*.app; do
             codesign --force --deep --sign - "$app"
             cp -R "$app" "$OUT/Standalone/"
           done
           cp docs/INSTALL-macOS.md "$OUT/README.txt"
-          lipo -archs "build/Muze_artefacts/Release/VST3/Muze.vst3/Contents/MacOS/Muze"
-          cd dist && ditto -c -k --keepParent Muze-macOS Muze-macOS.zip
+          lipo -archs "build/Vocalyst_artefacts/Release/VST3/Vocalyst.vst3/Contents/MacOS/Vocalyst"
+          cd dist && ditto -c -k --keepParent Vocalyst-macOS Vocalyst-macOS.zip
 
       - name: Upload macOS build
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
-          name: Muze-macOS
-          path: dist/Muze-macOS.zip
+          name: Vocalyst-macOS
+          path: dist/Vocalyst-macOS.zip
 
       - name: Validate VST3 with pluginval (macOS)
         if: runner.os == 'macOS'
@@ -91,20 +91,20 @@ jobs:
           curl -L -o pluginval.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
           unzip -q pluginval.zip
           ./pluginval.app/Contents/MacOS/pluginval --strictness-level 5 --validate-in-process --skip-gui-tests --timeout-ms 120000 \
-            "build/Muze_artefacts/Release/VST3/Muze.vst3"
+            "build/Vocalyst_artefacts/Release/VST3/Vocalyst.vst3"
           ./pluginval.app/Contents/MacOS/pluginval --strictness-level 5 --validate-in-process --skip-gui-tests --timeout-ms 120000 \
-            "build/MuzeAutoKey_artefacts/Release/VST3/Muze Auto Key.vst3"
+            "build/VocalystAutoKey_artefacts/Release/VST3/Vocalyst Auto Key.vst3"
 
       - name: Validate AU with auval (macOS)
         if: runner.os == 'macOS'
         continue-on-error: true
         run: |
           mkdir -p ~/Library/Audio/Plug-Ins/Components
-          cp -R build/Muze_artefacts/Release/AU/Muze.component ~/Library/Audio/Plug-Ins/Components/
-          cp -R "build/MuzeAutoKey_artefacts/Release/AU/Muze Auto Key.component" ~/Library/Audio/Plug-Ins/Components/
+          cp -R build/Vocalyst_artefacts/Release/AU/Vocalyst.component ~/Library/Audio/Plug-Ins/Components/
+          cp -R "build/VocalystAutoKey_artefacts/Release/AU/Vocalyst Auto Key.component" ~/Library/Audio/Plug-Ins/Components/
           killall -9 AudioComponentRegistrar 2>/dev/null || true
-          auval -v aufx Muz1 Mzrp
-          auval -v aufx Mzak Mzrp
+          auval -v aufx Vcl1 Anym
+          auval -v aufx Vcak Anym
 
       # -------------------------------------------------------------- Windows
       - name: Package Windows build
@@ -112,40 +112,40 @@ jobs:
         shell: bash
         run: |
           set -e
-          OUT=dist/Muze-Windows
+          OUT=dist/Vocalyst-Windows
           mkdir -p "$OUT/VST3" "$OUT/Standalone"
-          cp -R build/Muze_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
-          cp -R build/MuzeAutoKey_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
-          cp build/Muze_artefacts/Release/Standalone/*.exe "$OUT/Standalone/"
-          cp build/MuzeAutoKey_artefacts/Release/Standalone/*.exe "$OUT/Standalone/"
-          cd dist && 7z a -r Muze-Windows.zip Muze-Windows > /dev/null
+          cp -R build/Vocalyst_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
+          cp -R build/VocalystAutoKey_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
+          cp build/Vocalyst_artefacts/Release/Standalone/*.exe "$OUT/Standalone/"
+          cp build/VocalystAutoKey_artefacts/Release/Standalone/*.exe "$OUT/Standalone/"
+          cd dist && 7z a -r Vocalyst-Windows.zip Vocalyst-Windows > /dev/null
 
       - name: Upload Windows build
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: Muze-Windows
-          path: dist/Muze-Windows.zip
+          name: Vocalyst-Windows
+          path: dist/Vocalyst-Windows.zip
 
       # ---------------------------------------------------------------- Linux
       - name: Package Linux build
         if: runner.os == 'Linux'
         run: |
           set -e
-          OUT=dist/Muze-Linux
+          OUT=dist/Vocalyst-Linux
           mkdir -p "$OUT/VST3" "$OUT/Standalone"
-          cp -R build/Muze_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
-          cp -R build/MuzeAutoKey_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
-          cp build/Muze_artefacts/Release/Standalone/Muze "$OUT/Standalone/"
-          cp "build/MuzeAutoKey_artefacts/Release/Standalone/Muze Auto Key" "$OUT/Standalone/"
-          cd dist && tar czf Muze-Linux.tar.gz Muze-Linux
+          cp -R build/Vocalyst_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
+          cp -R build/VocalystAutoKey_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
+          cp build/Vocalyst_artefacts/Release/Standalone/Vocalyst "$OUT/Standalone/"
+          cp "build/VocalystAutoKey_artefacts/Release/Standalone/Vocalyst Auto Key" "$OUT/Standalone/"
+          cd dist && tar czf Vocalyst-Linux.tar.gz Vocalyst-Linux
 
       - name: Upload Linux build
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-          name: Muze-Linux
-          path: dist/Muze-Linux.tar.gz
+          name: Vocalyst-Linux
+          path: dist/Vocalyst-Linux.tar.gz
 
   release:
     name: Publish release
@@ -163,6 +163,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --generate-notes \
-            artifacts/Muze-macOS/Muze-macOS.zip \
-            artifacts/Muze-Windows/Muze-Windows.zip \
-            artifacts/Muze-Linux/Muze-Linux.tar.gz
+            artifacts/Vocalyst-macOS/Vocalyst-macOS.zip \
+            artifacts/Vocalyst-Windows/Vocalyst-Windows.zip \
+            artifacts/Vocalyst-Linux/Vocalyst-Linux.tar.gz

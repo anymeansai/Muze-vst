@@ -1,7 +1,7 @@
 #include "KeyDetector.h"
 #include <cmath>
 
-namespace muze
+namespace vocalyst
 {
 
 KeyDetector::KeyDetector()
@@ -139,4 +139,4 @@ KeyDetector::Result KeyDetector::estimate() const
     return r;
 }
 
-} // namespace muze
+} // namespace vocalyst

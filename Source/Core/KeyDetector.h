@@ -3,7 +3,7 @@
 #include <atomic>
 #include <array>
 
-namespace muze
+namespace vocalyst
 {
 
 // Chroma-based key finder (Krumhansl-Schmuckler profiles). Feed it mono audio from the
@@ -47,4 +47,4 @@ private:
     std::atomic<float> seconds { 0.f };
 };
 
-} // namespace muze
+} // namespace vocalyst

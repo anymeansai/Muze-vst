@@ -1,7 +1,7 @@
-#include "MuzeProcessor.h"
-#include "MuzeEditor.h"
+#include "VocalystProcessor.h"
+#include "VocalystEditor.h"
 
-namespace muze
+namespace vocalyst
 {
 
 //==============================================================================
@@ -22,7 +22,7 @@ static juce::String formatValue (const ParamSpec& spec, float v)
     return juce::String (v, 2);
 }
 
-juce::AudioProcessorValueTreeState::ParameterLayout MuzeProcessor::createLayout()
+juce::AudioProcessorValueTreeState::ParameterLayout VocalystProcessor::createLayout()
 {
     using namespace juce;
     std::vector<std::unique_ptr<RangedAudioParameter>> params;
@@ -75,10 +75,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout MuzeProcessor::createLayout(
 }
 
 //==============================================================================
-MuzeProcessor::MuzeProcessor()
+VocalystProcessor::VocalystProcessor()
     : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo(), true)
                                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
-      apvts (*this, nullptr, "MuzeParams", createLayout())
+      apvts (*this, nullptr, "VocalystParams", createLayout())
 {
     for (int i = 0; i < kNumModules; ++i)
     {
@@ -111,19 +111,19 @@ MuzeProcessor::MuzeProcessor()
     startTimer (150);
 }
 
-MuzeProcessor::~MuzeProcessor()
+VocalystProcessor::~VocalystProcessor()
 {
     stopTimer();
 }
 
-std::vector<ModuleId> MuzeProcessor::defaultChain()
+std::vector<ModuleId> VocalystProcessor::defaultChain()
 {
     return { ModuleId::Gate, ModuleId::Tune, ModuleId::LowCut, ModuleId::DeEsser, ModuleId::EQ, ModuleId::Compressor,
              ModuleId::Saturation, ModuleId::Glue, ModuleId::Air, ModuleId::Delay, ModuleId::Reverb, ModuleId::Limiter };
 }
 
 //==============================================================================
-void MuzeProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void VocalystProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     currentSampleRate = sampleRate;
     const int block = juce::jmax (1, samplesPerBlock);
@@ -142,9 +142,9 @@ void MuzeProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     orderDirty.store (true);
 }
 
-void MuzeProcessor::releaseResources() {}
+void VocalystProcessor::releaseResources() {}
 
-bool MuzeProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool VocalystProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     const auto in = layouts.getMainInputChannelSet();
     const auto out = layouts.getMainOutputChannelSet();
@@ -154,7 +154,7 @@ bool MuzeProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
     return true;
 }
 
-void MuzeProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
+void VocalystProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
     const int n = buffer.getNumSamples();
@@ -266,7 +266,7 @@ void MuzeProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
 }
 
 //==============================================================================
-void MuzeProcessor::timerCallback()
+void VocalystProcessor::timerCallback()
 {
     const int want = desiredLatency.load();
     if (want != getLatencySamples())
@@ -285,7 +285,7 @@ void MuzeProcessor::timerCallback()
 }
 
 //==============================================================================
-void MuzeProcessor::publishOrder()
+void VocalystProcessor::publishOrder()
 {
     {
         const juce::SpinLock::ScopedLockType sl (orderLock);
@@ -297,7 +297,7 @@ void MuzeProcessor::publishOrder()
     listeners.call ([] (Listener& l) { l.chainChanged(); });
 }
 
-void MuzeProcessor::setChainOrder (const std::vector<ModuleId>& order)
+void VocalystProcessor::setChainOrder (const std::vector<ModuleId>& order)
 {
     std::vector<ModuleId> clean;
     for (auto id : order)
@@ -307,7 +307,7 @@ void MuzeProcessor::setChainOrder (const std::vector<ModuleId>& order)
     publishOrder();
 }
 
-void MuzeProcessor::addModule (ModuleId id, int index)
+void VocalystProcessor::addModule (ModuleId id, int index)
 {
     if (isInChain (id)) return;
     if (index < 0 || index > (int) uiOrder.size()) uiOrder.push_back (id);
@@ -317,7 +317,7 @@ void MuzeProcessor::addModule (ModuleId id, int index)
     publishOrder();
 }
 
-void MuzeProcessor::removeModule (ModuleId id)
+void VocalystProcessor::removeModule (ModuleId id)
 {
     auto it = std::find (uiOrder.begin(), uiOrder.end(), id);
     if (it == uiOrder.end()) return;
@@ -325,7 +325,7 @@ void MuzeProcessor::removeModule (ModuleId id)
     publishOrder();
 }
 
-void MuzeProcessor::moveModule (int from, int to)
+void VocalystProcessor::moveModule (int from, int to)
 {
     const int n = (int) uiOrder.size();
     if (from < 0 || from >= n || to < 0 || to >= n || from == to) return;
@@ -335,19 +335,19 @@ void MuzeProcessor::moveModule (int from, int to)
     publishOrder();
 }
 
-bool MuzeProcessor::isInChain (ModuleId id) const
+bool VocalystProcessor::isInChain (ModuleId id) const
 {
     return std::find (uiOrder.begin(), uiOrder.end(), id) != uiOrder.end();
 }
 
-void MuzeProcessor::chainToState()
+void VocalystProcessor::chainToState()
 {
     juce::StringArray keys;
     for (auto id : uiOrder) keys.add (moduleSpec (id).key);
     uiState.setProperty ("chain", keys.joinIntoString (","), nullptr);
 }
 
-void MuzeProcessor::stateToChain()
+void VocalystProcessor::stateToChain()
 {
     juce::StringArray keys;
     keys.addTokens (uiState.getProperty ("chain").toString(), ",", "");
@@ -360,20 +360,20 @@ void MuzeProcessor::stateToChain()
 }
 
 //==============================================================================
-void MuzeProcessor::setParamValue (const juce::String& id, float displayValue)
+void VocalystProcessor::setParamValue (const juce::String& id, float displayValue)
 {
     if (auto* p = apvts.getParameter (id))
         p->setValueNotifyingHost (p->convertTo0to1 (displayValue));
 }
 
-float MuzeProcessor::getParamValue (const juce::String& id) const
+float VocalystProcessor::getParamValue (const juce::String& id) const
 {
     if (auto* p = apvts.getParameter (id))
         return p->convertFrom0to1 (p->getValue());
     return 0.f;
 }
 
-void MuzeProcessor::loadPreset (const Preset& preset)
+void VocalystProcessor::loadPreset (const Preset& preset)
 {
     // reset every module parameter to default (keeps key/scale and I/O gains)
     for (auto& m : allModules())
@@ -400,7 +400,7 @@ void MuzeProcessor::loadPreset (const Preset& preset)
     listeners.call ([] (Listener& l) { l.presetChanged(); });
 }
 
-void MuzeProcessor::loadFactoryPreset (int index)
+void VocalystProcessor::loadFactoryPreset (int index)
 {
     auto& f = presets::factory();
     if (f.empty()) return;
@@ -408,21 +408,21 @@ void MuzeProcessor::loadFactoryPreset (int index)
     loadPreset (f[(size_t) index]);
 }
 
-void MuzeProcessor::nextPreset()
+void VocalystProcessor::nextPreset()
 {
     const int n = (int) presets::factory().size();
     if (n == 0) return;
     loadFactoryPreset ((currentFactoryIndex + 1 + n) % n);
 }
 
-void MuzeProcessor::prevPreset()
+void VocalystProcessor::prevPreset()
 {
     const int n = (int) presets::factory().size();
     if (n == 0) return;
     loadFactoryPreset ((juce::jmax (0, currentFactoryIndex) - 1 + n) % n);
 }
 
-Preset MuzeProcessor::captureCurrentPreset (const juce::String& name, const juce::String& genre,
+Preset VocalystProcessor::captureCurrentPreset (const juce::String& name, const juce::String& genre,
                                             const juce::String& description, const juce::String& author, bool adlib) const
 {
     Preset p;
@@ -440,12 +440,12 @@ Preset MuzeProcessor::captureCurrentPreset (const juce::String& name, const juce
     return p;
 }
 
-juce::String MuzeProcessor::getCurrentPresetName() const
+juce::String VocalystProcessor::getCurrentPresetName() const
 {
     return uiState.getProperty ("presetName", "Init").toString();
 }
 
-const juce::String MuzeProcessor::getProgramName (int index)
+const juce::String VocalystProcessor::getProgramName (int index)
 {
     auto& f = presets::factory();
     if (index < 0 || index >= (int) f.size()) return {};
@@ -453,20 +453,20 @@ const juce::String MuzeProcessor::getProgramName (int index)
 }
 
 //==============================================================================
-bool MuzeProcessor::isSimpleMode() const { return uiState.getProperty ("mode", "simple").toString() == "simple"; }
-void MuzeProcessor::setSimpleMode (bool simple) { uiState.setProperty ("mode", simple ? "simple" : "advanced", nullptr); }
+bool VocalystProcessor::isSimpleMode() const { return uiState.getProperty ("mode", "simple").toString() == "simple"; }
+void VocalystProcessor::setSimpleMode (bool simple) { uiState.setProperty ("mode", simple ? "simple" : "advanced", nullptr); }
 
-int  MuzeProcessor::getKey() const   { return (int) pKey->load(); }
-int  MuzeProcessor::getScale() const { return (int) pScale->load(); }
+int  VocalystProcessor::getKey() const   { return (int) pKey->load(); }
+int  VocalystProcessor::getScale() const { return (int) pScale->load(); }
 
-void MuzeProcessor::setKey (int key, int scale)
+void VocalystProcessor::setKey (int key, int scale)
 {
     setParamValue (ids::key, (float) juce::jlimit (0, 11, key));
     setParamValue (ids::scale, (float) juce::jlimit (0, scales::kNumScales - 1, scale));
     listeners.call ([] (Listener& l) { l.keyChanged(); });
 }
 
-bool MuzeProcessor::applySharedKey()
+bool VocalystProcessor::applySharedKey()
 {
     auto info = sharedkey::read();
     lastShared = info;
@@ -475,7 +475,7 @@ bool MuzeProcessor::applySharedKey()
     return true;
 }
 
-void MuzeProcessor::applySuggestions (const std::vector<VocalAnalyzer::Suggestion>& suggestions)
+void VocalystProcessor::applySuggestions (const std::vector<VocalAnalyzer::Suggestion>& suggestions)
 {
     for (auto& s : suggestions)
     {
@@ -501,7 +501,7 @@ void MuzeProcessor::applySuggestions (const std::vector<VocalAnalyzer::Suggestio
 }
 
 //==============================================================================
-void MuzeProcessor::getStateInformation (juce::MemoryBlock& destData)
+void VocalystProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     chainToState();
     auto state = apvts.copyState();
@@ -509,7 +509,7 @@ void MuzeProcessor::getStateInformation (juce::MemoryBlock& destData)
     copyXmlToBinary (*xml, destData);
 }
 
-void MuzeProcessor::setStateInformation (const void* data, int sizeInBytes)
+void VocalystProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<juce::XmlElement> xml (getXmlFromBinary (data, sizeInBytes));
     if (xml == nullptr || ! xml->hasTagName (apvts.state.getType())) return;
@@ -528,17 +528,17 @@ void MuzeProcessor::setStateInformation (const void* data, int sizeInBytes)
 }
 
 //==============================================================================
-juce::AudioProcessorEditor* MuzeProcessor::createEditor()
+juce::AudioProcessorEditor* VocalystProcessor::createEditor()
 {
-    return new MuzeEditor (*this);
+    return new VocalystEditor (*this);
 }
 
-} // namespace muze
+} // namespace vocalyst
 
 //==============================================================================
-#ifndef MUZE_STANDALONE_TEST
+#ifndef VOCALYST_STANDALONE_TEST
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new muze::MuzeProcessor();
+    return new vocalyst::VocalystProcessor();
 }
 #endif

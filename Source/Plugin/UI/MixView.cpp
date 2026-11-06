@@ -1,9 +1,9 @@
 #include "MixView.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-MixView::MixView (MuzeProcessor& p) : processor (p), chain (p), modulePanel (p), macros (p)
+MixView::MixView (VocalystProcessor& p) : processor (p), chain (p), modulePanel (p), macros (p)
 {
     addAndMakeVisible (modeSimple);
     addAndMakeVisible (modeAdvanced);
@@ -53,4 +53,4 @@ void MixView::paint (juce::Graphics& g)
     g.fillAll (colours::bg());
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

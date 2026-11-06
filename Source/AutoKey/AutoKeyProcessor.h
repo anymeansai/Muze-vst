@@ -4,11 +4,11 @@
 #include "../Core/SharedKey.h"
 #include "../Core/Scales.h"
 
-namespace muze
+namespace vocalyst
 {
 
-// Muze Auto Key: put it on the instrumental or master bus, it finds the song key and
-// hands it to Muze on the vocal track.
+// Vocalyst Auto Key: put it on the instrumental or master bus, it finds the song key and
+// hands it to Vocalyst on the vocal track.
 class AutoKeyProcessor final : public juce::AudioProcessor, private juce::Timer
 {
 public:
@@ -22,7 +22,7 @@ public:
 
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override                  { return true; }
-    const juce::String getName() const override      { return "Muze Auto Key"; }
+    const juce::String getName() const override      { return "Vocalyst Auto Key"; }
     bool acceptsMidi() const override                { return false; }
     bool producesMidi() const override               { return false; }
     bool isMidiEffect() const override               { return false; }
@@ -37,7 +37,7 @@ public:
 
     KeyDetector& detector()                          { return keyDetector; }
     KeyDetector::Result current() const              { return keyDetector.estimate(); }
-    bool sendToMuze();
+    bool sendToVocalyst();
     bool isAutoSend() const                          { return autoSend.load(); }
     void setAutoSend (bool b)                        { autoSend.store (b); }
     juce::String lastSentText() const                { return lastSent; }
@@ -53,4 +53,4 @@ private:
     juce::String lastSent;
 };
 
-} // namespace muze
+} // namespace vocalyst

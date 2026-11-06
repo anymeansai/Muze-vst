@@ -5,7 +5,7 @@
 #include <atomic>
 #include <array>
 
-namespace muze
+namespace vocalyst
 {
 
 // Per-block information handed to every module.
@@ -62,4 +62,4 @@ inline void Module::attachParameters (juce::AudioProcessorValueTreeState& apvts)
 // Factory for the 27 modules
 std::unique_ptr<Module> createModule (ModuleId id);
 
-} // namespace muze
+} // namespace vocalyst

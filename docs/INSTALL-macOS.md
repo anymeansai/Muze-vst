@@ -1,10 +1,10 @@
-# Installing Muze on macOS
+# Installing Vocalyst on macOS
 
-This zip contains universal (Apple Silicon + Intel) builds of **Muze** and **Muze Auto Key**:
+This zip contains universal (Apple Silicon + Intel) builds of **Vocalyst** and **Vocalyst Auto Key**:
 
-- `VST3/Muze.vst3`, `VST3/Muze Auto Key.vst3`
-- `AU/Muze.component`, `AU/Muze Auto Key.component` (Logic, GarageBand)
-- `Standalone/Muze.app`, `Standalone/Muze Auto Key.app`
+- `VST3/Vocalyst.vst3`, `VST3/Vocalyst Auto Key.vst3`
+- `AU/Vocalyst.component`, `AU/Vocalyst Auto Key.component` (Logic, GarageBand)
+- `Standalone/Vocalyst.app`, `Standalone/Vocalyst Auto Key.app`
 
 ## 1. Copy the plugins
 
@@ -23,10 +23,10 @@ These builds are signed ad-hoc, not notarized by Apple, so macOS blocks them aft
 ("cannot be opened because the developer cannot be verified"). Clear the quarantine flag once:
 
 ```
-xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/Muze.vst3
-xattr -dr com.apple.quarantine "~/Library/Audio/Plug-Ins/VST3/Muze Auto Key.vst3"
-xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/Muze.component
-xattr -dr com.apple.quarantine "~/Library/Audio/Plug-Ins/Components/Muze Auto Key.component"
+xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/Vocalyst.vst3
+xattr -dr com.apple.quarantine "~/Library/Audio/Plug-Ins/VST3/Vocalyst Auto Key.vst3"
+xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/Vocalyst.component
+xattr -dr com.apple.quarantine "~/Library/Audio/Plug-Ins/Components/Vocalyst Auto Key.component"
 ```
 
 (Open Terminal, paste the lines, press Enter.)
@@ -40,9 +40,9 @@ xattr -dr com.apple.quarantine "~/Library/Audio/Plug-Ins/Components/Muze Auto Ke
 
 ## 4. Use it
 
-1. Put **Muze** on the vocal track, pick a preset in the PRESETS tab.
-2. Put **Muze Auto Key** on the beat or master bus, press SEND TO MUZE (or leave AUTO SEND on).
-3. In Muze press **AUTO KEY** > "Pull key from Muze Auto Key", or detect the key from the vocal itself.
+1. Put **Vocalyst** on the vocal track, pick a preset in the PRESETS tab.
+2. Put **Vocalyst Auto Key** on the beat or master bus, press SEND TO VOCALYST (or leave AUTO SEND on).
+3. In Vocalyst press **AUTO KEY** > "Pull key from Vocalyst Auto Key", or detect the key from the vocal itself.
 4. Press **ANALYZE**, play the vocal, apply the suggestions, then shape it with the SIMPLE macros or the ADVANCED chain.
 
 Trouble? The Standalone app in this zip runs without a DAW (right-click > Open the first time).

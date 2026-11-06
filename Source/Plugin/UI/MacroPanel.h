@@ -1,24 +1,24 @@
 #pragma once
-#include "MuzeLookAndFeel.h"
-#include "../MuzeProcessor.h"
+#include "VocalystLookAndFeel.h"
+#include "../VocalystProcessor.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 // Simple mode: six macro knobs that bend the loaded preset without touching its settings.
-class MacroPanel : public juce::Component, private MuzeProcessor::Listener
+class MacroPanel : public juce::Component, private VocalystProcessor::Listener
 {
 public:
-    explicit MacroPanel (MuzeProcessor&);
+    explicit MacroPanel (VocalystProcessor&);
     ~MacroPanel() override;
     void paint (juce::Graphics&) override;
     void resized() override;
 private:
     void chainChanged() override { repaint(); }
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     std::vector<std::unique_ptr<Knob>> knobs;
     std::vector<juce::String> captions;
     juce::Label heading, sub;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

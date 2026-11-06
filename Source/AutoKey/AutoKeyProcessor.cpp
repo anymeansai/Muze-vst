@@ -1,7 +1,7 @@
 #include "AutoKeyProcessor.h"
 #include "AutoKeyEditor.h"
 
-namespace muze
+namespace vocalyst
 {
 
 AutoKeyProcessor::AutoKeyProcessor()
@@ -46,11 +46,11 @@ void AutoKeyProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     // audio passes through untouched
 }
 
-bool AutoKeyProcessor::sendToMuze()
+bool AutoKeyProcessor::sendToVocalyst()
 {
     auto r = keyDetector.estimate();
     if (! r.valid) return false;
-    if (sharedkey::write (r.key, r.scale, r.confidence, "Muze Auto Key"))
+    if (sharedkey::write (r.key, r.scale, r.confidence, "Vocalyst Auto Key"))
     {
         lastKey = r.key; lastScale = r.scale;
         lastSent = scales::keyName (r.key, r.scale) + " at " + juce::Time::getCurrentTime().toString (false, true, false);
@@ -64,7 +64,7 @@ void AutoKeyProcessor::timerCallback()
     if (! autoSend.load()) return;
     auto r = keyDetector.estimate();
     if (r.valid && r.confidence > 0.25f && (r.key != lastKey || r.scale != lastScale))
-        sendToMuze();
+        sendToVocalyst();
 }
 
 void AutoKeyProcessor::getStateInformation (juce::MemoryBlock& dest)
@@ -81,11 +81,11 @@ void AutoKeyProcessor::setStateInformation (const void* data, int size)
 
 juce::AudioProcessorEditor* AutoKeyProcessor::createEditor() { return new AutoKeyEditor (*this); }
 
-} // namespace muze
+} // namespace vocalyst
 
-#ifndef MUZE_STANDALONE_TEST
+#ifndef VOCALYST_STANDALONE_TEST
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new muze::AutoKeyProcessor();
+    return new vocalyst::AutoKeyProcessor();
 }
 #endif

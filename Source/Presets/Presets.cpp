@@ -1,7 +1,7 @@
 #include "Presets.h"
 #include "../Core/ModuleRegistry.h"
 
-namespace muze
+namespace vocalyst
 {
 
 extern const char* const kFactoryPresetData[];
@@ -15,7 +15,7 @@ juce::var Preset::toJson() const
     o->setProperty ("description", description);
     o->setProperty ("author", author);
     o->setProperty ("adlib", adlib);
-    o->setProperty ("format", "muze-preset-1");
+    o->setProperty ("format", "vocalyst-preset-1");
     juce::Array<juce::var> ch;
     for (auto& c : chain) ch.add (c);
     o->setProperty ("chain", ch);
@@ -63,7 +63,7 @@ Preset parseCompact (const juce::String& encoded)
     p.genre = parts[1].trim();
     p.adlib = parts[2].trim() == "adlib";
     p.description = parts[3].trim();
-    p.author = "Muze";
+    p.author = "Vocalyst";
     juce::StringArray chain;
     chain.addTokens (parts[4], ",", "");
     for (auto& c : chain)
@@ -121,7 +121,7 @@ int indexOf (const juce::String& name)
     return -1;
 }
 
-juce::String fileExtension() { return ".muzepreset"; }
+juce::String fileExtension() { return ".vocalystpreset"; }
 
 } // namespace presets
-} // namespace muze
+} // namespace vocalyst

@@ -1,6 +1,6 @@
 #pragma once
-#include "MuzeProcessor.h"
-#include "UI/MuzeLookAndFeel.h"
+#include "VocalystProcessor.h"
+#include "UI/VocalystLookAndFeel.h"
 #include "UI/HeaderBar.h"
 #include "UI/FooterBar.h"
 #include "UI/PresetBrowserPanel.h"
@@ -8,14 +8,14 @@
 #include "UI/CommunityPanel.h"
 #include "UI/AnalyzePanel.h"
 
-namespace muze
+namespace vocalyst
 {
 
-class MuzeEditor final : public juce::AudioProcessorEditor
+class VocalystEditor final : public juce::AudioProcessorEditor
 {
 public:
-    explicit MuzeEditor (MuzeProcessor&);
-    ~MuzeEditor() override;
+    explicit VocalystEditor (VocalystProcessor&);
+    ~VocalystEditor() override;
     void paint (juce::Graphics&) override;
     void resized() override;
     void showTab (int tab);
@@ -25,8 +25,8 @@ public:
     static constexpr int defaultWidth = 1080, defaultHeight = 660;
 
 private:
-    MuzeProcessor& muzeProcessor;
-    ui::MuzeLookAndFeel lnf;
+    VocalystProcessor& vocalystProcessor;
+    ui::VocalystLookAndFeel lnf;
     ui::HeaderBar header;
     ui::FooterBar footer;
     ui::PresetBrowserPanel presetsPanel;
@@ -36,4 +36,4 @@ private:
     juce::TooltipWindow tooltips { this, 600 };
 };
 
-} // namespace muze
+} // namespace vocalyst

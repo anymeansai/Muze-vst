@@ -1,9 +1,9 @@
-#include "MuzeLookAndFeel.h"
+#include "VocalystLookAndFeel.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-MuzeLookAndFeel::MuzeLookAndFeel()
+VocalystLookAndFeel::VocalystLookAndFeel()
 {
     setColour (juce::ResizableWindow::backgroundColourId, colours::bg());
     setColour (juce::Label::textColourId, colours::text());
@@ -41,7 +41,7 @@ MuzeLookAndFeel::MuzeLookAndFeel()
     setColour (juce::ToggleButton::tickColourId, colours::accent());
 }
 
-void MuzeLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w, int h, float pos,
+void VocalystLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w, int h, float pos,
                                         float startAngle, float endAngle, juce::Slider& s)
 {
     auto bounds = juce::Rectangle<float> ((float) x, (float) y, (float) w, (float) h).reduced (4.f);
@@ -85,7 +85,7 @@ void MuzeLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w, 
     g.drawLine ({ p1, p2 }, juce::jmax (2.f, lineW * 0.7f));
 }
 
-void MuzeLookAndFeel::drawButtonBackground (juce::Graphics& g, juce::Button& b, const juce::Colour& bgColour, bool highlighted, bool down)
+void VocalystLookAndFeel::drawButtonBackground (juce::Graphics& g, juce::Button& b, const juce::Colour& bgColour, bool highlighted, bool down)
 {
     auto bounds = b.getLocalBounds().toFloat().reduced (0.5f);
     const float r = juce::jmin (8.f, bounds.getHeight() * 0.5f);
@@ -101,7 +101,7 @@ void MuzeLookAndFeel::drawButtonBackground (juce::Graphics& g, juce::Button& b, 
     g.drawRoundedRectangle (bounds, r, 1.f);
 }
 
-void MuzeLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& b, bool, bool)
+void VocalystLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& b, bool, bool)
 {
     g.setFont (getTextButtonFont (b, b.getHeight()));
     bool active = b.getToggleState();
@@ -110,7 +110,7 @@ void MuzeLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& b, bo
     g.drawFittedText (b.getButtonText(), b.getLocalBounds().reduced (6, 0), juce::Justification::centred, 1);
 }
 
-void MuzeLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b, bool highlighted, bool)
+void VocalystLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b, bool highlighted, bool)
 {
     // drawn as a small power switch
     auto r = b.getLocalBounds().toFloat();
@@ -130,7 +130,7 @@ void MuzeLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b
     g.drawLine (inner.getCentreX(), inner.getY() - 1.f, inner.getCentreX(), inner.getCentreY(), 1.6f);
 }
 
-void MuzeLookAndFeel::drawComboBox (juce::Graphics& g, int w, int h, bool, int, int, int, int, juce::ComboBox& box)
+void VocalystLookAndFeel::drawComboBox (juce::Graphics& g, int w, int h, bool, int, int, int, int, juce::ComboBox& box)
 {
     auto r = juce::Rectangle<float> (0.f, 0.f, (float) w, (float) h).reduced (0.5f);
     g.setColour (box.findColour (juce::ComboBox::backgroundColourId));
@@ -144,13 +144,13 @@ void MuzeLookAndFeel::drawComboBox (juce::Graphics& g, int w, int h, bool, int, 
     g.fillPath (arrow);
 }
 
-void MuzeLookAndFeel::positionComboBoxText (juce::ComboBox& box, juce::Label& label)
+void VocalystLookAndFeel::positionComboBoxText (juce::ComboBox& box, juce::Label& label)
 {
     label.setBounds (8, 1, box.getWidth() - 26, box.getHeight() - 2);
     label.setFont (getComboBoxFont (box));
 }
 
-void MuzeLookAndFeel::drawPopupMenuBackground (juce::Graphics& g, int w, int h)
+void VocalystLookAndFeel::drawPopupMenuBackground (juce::Graphics& g, int w, int h)
 {
     g.setColour (colours::panelLight());
     g.fillRoundedRectangle (0.f, 0.f, (float) w, (float) h, 6.f);
@@ -158,7 +158,7 @@ void MuzeLookAndFeel::drawPopupMenuBackground (juce::Graphics& g, int w, int h)
     g.drawRoundedRectangle (0.5f, 0.5f, (float) w - 1.f, (float) h - 1.f, 6.f, 1.f);
 }
 
-juce::Label* MuzeLookAndFeel::createSliderTextBox (juce::Slider& s)
+juce::Label* VocalystLookAndFeel::createSliderTextBox (juce::Slider& s)
 {
     auto* l = LookAndFeel_V4::createSliderTextBox (s);
     l->setFont (font (11.5f));
@@ -170,7 +170,7 @@ juce::Label* MuzeLookAndFeel::createSliderTextBox (juce::Slider& s)
     return l;
 }
 
-void MuzeLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int w, int h, float pos, float, float, juce::Slider::SliderStyle, juce::Slider& s)
+void VocalystLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int w, int h, float pos, float, float, juce::Slider::SliderStyle, juce::Slider& s)
 {
     auto r = juce::Rectangle<float> ((float) x, (float) y, (float) w, (float) h);
     auto track = r.withSizeKeepingCentre ((float) w, 4.f);
@@ -182,7 +182,7 @@ void MuzeLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int w, 
     g.fillEllipse (juce::Rectangle<float> (12.f, 12.f).withCentre ({ pos, r.getCentreY() }));
 }
 
-void MuzeLookAndFeel::drawScrollbar (juce::Graphics& g, juce::ScrollBar&, int x, int y, int w, int h, bool vertical, int thumbStart, int thumbSize, bool, bool)
+void VocalystLookAndFeel::drawScrollbar (juce::Graphics& g, juce::ScrollBar&, int x, int y, int w, int h, bool vertical, int thumbStart, int thumbSize, bool, bool)
 {
     juce::Rectangle<float> thumb = vertical ? juce::Rectangle<float> ((float) x + 2.f, (float) thumbStart, (float) w - 4.f, (float) thumbSize)
                                             : juce::Rectangle<float> ((float) thumbStart, (float) y + 2.f, (float) thumbSize, (float) h - 4.f);
@@ -219,4 +219,4 @@ void Knob::resized()
     slider.setBounds (r);
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

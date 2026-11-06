@@ -1,15 +1,15 @@
 #pragma once
-#include "MuzeLookAndFeel.h"
-#include "../MuzeProcessor.h"
+#include "VocalystLookAndFeel.h"
+#include "../VocalystProcessor.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 // Overlay showing what the analyzer heard and the auto-mix suggestions it derived.
 class AnalyzePanel : public juce::Component, private juce::Timer
 {
 public:
-    explicit AnalyzePanel (MuzeProcessor&);
+    explicit AnalyzePanel (VocalystProcessor&);
     std::function<void()> onClose;
     void open();
     void paint (juce::Graphics&) override;
@@ -18,10 +18,10 @@ public:
 private:
     void timerCallback() override;
     void refresh();
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     VocalAnalyzer::Stats stats;
     std::vector<VocalAnalyzer::Suggestion> suggestions;
     juce::TextButton applyBtn { "APPLY SUGGESTIONS" }, resetBtn { "LISTEN AGAIN" }, closeBtn { "CLOSE" };
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

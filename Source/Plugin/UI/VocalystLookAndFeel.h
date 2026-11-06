@@ -2,7 +2,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 namespace colours
@@ -24,10 +24,10 @@ inline juce::Font font (float height, bool bold = false)
     return juce::Font (juce::FontOptions (height, bold ? juce::Font::bold : juce::Font::plain));
 }
 
-class MuzeLookAndFeel : public juce::LookAndFeel_V4
+class VocalystLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    MuzeLookAndFeel();
+    VocalystLookAndFeel();
 
     void drawRotarySlider (juce::Graphics&, int x, int y, int w, int h, float pos, float startAngle, float endAngle, juce::Slider&) override;
     void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour& bg, bool highlighted, bool down) override;
@@ -70,4 +70,4 @@ private:
     bool active = false;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

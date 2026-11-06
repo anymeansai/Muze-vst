@@ -1,17 +1,17 @@
 #pragma once
-#include "MuzeLookAndFeel.h"
-#include "../MuzeProcessor.h"
+#include "VocalystLookAndFeel.h"
+#include "../VocalystProcessor.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 // Horizontal strip of module tiles: drag to re-order, power toggle, remove, "+ ADD".
 class ChainStrip : public juce::Component,
-                   private MuzeProcessor::Listener,
+                   private VocalystProcessor::Listener,
                    private juce::AsyncUpdater
 {
 public:
-    explicit ChainStrip (MuzeProcessor&);
+    explicit ChainStrip (VocalystProcessor&);
     ~ChainStrip() override;
 
     std::function<void (ModuleId)> onSelect;
@@ -34,7 +34,7 @@ private:
     void tileDragged (Tile*, int containerX);
     void tileDragEnd (Tile*);
 
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     juce::Viewport viewport;
     juce::Component container;
     std::vector<std::unique_ptr<Tile>> tiles;
@@ -44,4 +44,4 @@ private:
     int dragIndex = -1;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

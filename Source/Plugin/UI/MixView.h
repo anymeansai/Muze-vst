@@ -3,19 +3,19 @@
 #include "ModulePanel.h"
 #include "MacroPanel.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 // The MIX tab: Simple mode shows macros, Advanced mode shows the chain editor.
 class MixView : public juce::Component
 {
 public:
-    explicit MixView (MuzeProcessor&);
+    explicit MixView (VocalystProcessor&);
     void refreshMode();
     void resized() override;
     void paint (juce::Graphics&) override;
 private:
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     PillButton modeSimple { "SIMPLE" }, modeAdvanced { "ADVANCED" };
     juce::Label modeLabel;
     ChainStrip chain;
@@ -23,4 +23,4 @@ private:
     MacroPanel macros;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

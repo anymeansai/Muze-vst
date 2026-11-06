@@ -1,9 +1,9 @@
 #include "AnalyzePanel.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-AnalyzePanel::AnalyzePanel (MuzeProcessor& p) : processor (p)
+AnalyzePanel::AnalyzePanel (VocalystProcessor& p) : processor (p)
 {
     for (auto* b : { &applyBtn, &resetBtn, &closeBtn }) addAndMakeVisible (b);
     applyBtn.setColour (juce::TextButton::buttonColourId, colours::accent());
@@ -50,7 +50,7 @@ void AnalyzePanel::paint (juce::Graphics& g)
     g.drawText ("ANALYZE", r.removeFromTop (28), juce::Justification::centredLeft);
     g.setColour (colours::textDim());
     g.setFont (font (12.5f));
-    g.drawText ("Play the vocal through Muze. The analyzer listens to the raw input and proposes a starting mix.", r.removeFromTop (20), juce::Justification::centredLeft);
+    g.drawText ("Play the vocal through Vocalyst. The analyzer listens to the raw input and proposes a starting mix.", r.removeFromTop (20), juce::Justification::centredLeft);
     r.removeFromTop (10);
 
     // stats grid
@@ -112,4 +112,4 @@ void AnalyzePanel::resized()
     applyBtn.setBounds (row.removeFromLeft (190));
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

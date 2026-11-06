@@ -2,7 +2,7 @@
 #include <juce_graphics/juce_graphics.h>
 #include <algorithm>
 
-namespace muze
+namespace vocalyst
 {
 
 static std::vector<ModuleSpec> buildRegistry()
@@ -272,4 +272,4 @@ juce::Colour categoryColour (ModuleCategory c)
     }
 }
 
-} // namespace muze
+} // namespace vocalyst

@@ -1,9 +1,9 @@
 #include "MacroPanel.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-MacroPanel::MacroPanel (MuzeProcessor& p) : processor (p)
+MacroPanel::MacroPanel (VocalystProcessor& p) : processor (p)
 {
     struct M { const char* id; const char* name; const char* caption; juce::Colour c; };
     const M macros[] = {
@@ -32,10 +32,10 @@ MacroPanel::MacroPanel (MuzeProcessor& p) : processor (p)
     sub.setColour (juce::Label::textColourId, colours::textDim());
     sub.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (sub);
-    processor.addMuzeListener (this);
+    processor.addVocalystListener (this);
 }
 
-MacroPanel::~MacroPanel() { processor.removeMuzeListener (this); }
+MacroPanel::~MacroPanel() { processor.removeVocalystListener (this); }
 
 void MacroPanel::paint (juce::Graphics& g)
 {
@@ -92,4 +92,4 @@ void MacroPanel::resized()
         k->setBounds (knobArea.removeFromLeft (w).reduced (8, 0));
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

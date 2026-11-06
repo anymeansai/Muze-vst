@@ -3,7 +3,7 @@
 #include <cmath>
 #include <vector>
 
-namespace muze::dsp
+namespace vocalyst::dsp
 {
 
 constexpr float kPi = 3.14159265358979323846f;
@@ -148,4 +148,4 @@ inline float fastTanh (float x)
     return juce::jlimit (-1.f, 1.f, x * (27.f + x2) / (27.f + 9.f * x2));
 }
 
-} // namespace muze::dsp
+} // namespace vocalyst::dsp

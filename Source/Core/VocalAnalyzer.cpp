@@ -1,6 +1,6 @@
 #include "VocalAnalyzer.h"
 
-namespace muze
+namespace vocalyst
 {
 using namespace dsp;
 
@@ -141,4 +141,4 @@ std::vector<VocalAnalyzer::Suggestion> VocalAnalyzer::suggest (const Stats& s)
     return out;
 }
 
-} // namespace muze
+} // namespace vocalyst

@@ -1,7 +1,7 @@
 // Offline test runner: registry/preset integrity, DSP stability, pitch detection & correction,
-// key detection, analyzer, state round-trip. Run: ./MuzeTests  (exit code 0 = all passed)
+// key detection, analyzer, state round-trip. Run: ./VocalystTests  (exit code 0 = all passed)
 
-#include "../Source/Plugin/MuzeProcessor.h"
+#include "../Source/Plugin/VocalystProcessor.h"
 #include "../Source/DSP/PitchDetector.h"
 #include "../Source/Core/KeyDetector.h"
 #include <juce_events/juce_events.h>
@@ -10,7 +10,7 @@
 #include <set>
 #include <algorithm>
 
-using namespace muze;
+using namespace vocalyst;
 
 static int failures = 0;
 #define CHECK(cond, msg) do { if (cond) std::cout << "  [ok]   " << msg << "\n"; else { std::cout << "  [FAIL] " << msg << "\n"; ++failures; } } while (0)
@@ -42,7 +42,7 @@ static float measurePitch (const std::vector<float>& signal, double sr, int skip
     return estimates[estimates.size() / 2];
 }
 
-static void testRegistry (MuzeProcessor& p)
+static void testRegistry (VocalystProcessor& p)
 {
     std::cout << "Registry\n";
     CHECK (allModules().size() == 27, "27 effect modules registered");
@@ -62,7 +62,7 @@ static void testRegistry (MuzeProcessor& p)
     CHECK (allFound, "every module parameter exists in the APVTS (" + juce::String (count) + " params)");
 }
 
-static void testPresets (MuzeProcessor& p)
+static void testPresets (VocalystProcessor& p)
 {
     std::cout << "Presets\n";
     auto& f = presets::factory();
@@ -102,7 +102,7 @@ static void testPresets (MuzeProcessor& p)
     CHECK (ok && back.chain == cap.chain && back.values.size() == cap.values.size(), "preset JSON round trip");
 }
 
-static void testChainStability (MuzeProcessor& p)
+static void testChainStability (VocalystProcessor& p)
 {
     std::cout << "DSP stability (all 27 modules active)\n";
     const double sr = 44100.0; const int block = 512;
@@ -139,7 +139,7 @@ static void testChainStability (MuzeProcessor& p)
     CHECK (maxOut < 1.0e-3f, "silence stays silent (" + juce::String (maxOut, 6) + ")");
 }
 
-static void testEachModule (MuzeProcessor& p)
+static void testEachModule (VocalystProcessor& p)
 {
     std::cout << "Each module alone passes signal\n";
     const double sr = 44100.0; const int block = 512;
@@ -185,7 +185,7 @@ static void testPitchDetector()
     CHECK (std::abs (f2 - 660.f) < 7.f, "660 Hz sine detected as " + juce::String (f2, 2) + " Hz");
 }
 
-static void testTune (MuzeProcessor& p)
+static void testTune (VocalystProcessor& p)
 {
     std::cout << "Tune (pitch correction)\n";
     const double sr = 44100.0; const int block = 256;
@@ -283,7 +283,7 @@ static void testScales()
     CHECK (scales::nearestScaleNote (63.4f, 9, scales::Minor) == 64, "63.4 in A minor -> E");
 }
 
-static void testAnalyzer (MuzeProcessor& p)
+static void testAnalyzer (VocalystProcessor& p)
 {
     std::cout << "Analyzer\n";
     const double sr = 44100.0; const int block = 512;
@@ -314,7 +314,7 @@ static void testAnalyzer (MuzeProcessor& p)
 static void testState()
 {
     std::cout << "State\n";
-    MuzeProcessor a;
+    VocalystProcessor a;
     a.loadFactoryPreset (5);
     a.setChainOrder ({ ModuleId::Reverb, ModuleId::Gate, ModuleId::Tune });
     a.setKey (6, scales::Minor);
@@ -323,7 +323,7 @@ static void testState()
     juce::MemoryBlock mb;
     a.getStateInformation (mb);
 
-    MuzeProcessor b;
+    VocalystProcessor b;
     b.setStateInformation (mb.getData(), (int) mb.getSize());
     const auto order = b.getChainOrder();
     CHECK (order.size() == 3 && order[0] == ModuleId::Reverb && order[1] == ModuleId::Gate && order[2] == ModuleId::Tune, "chain order restored");
@@ -336,9 +336,9 @@ static void testState()
 int main()
 {
     juce::ScopedJuceInitialiser_GUI init;   // message manager for AudioProcessor / parameter attachments
-    std::cout << "Muze test runner\n";
+    std::cout << "Vocalyst test runner\n";
     {
-        MuzeProcessor p;
+        VocalystProcessor p;
         testRegistry (p);
         testPresets (p);
         testChainStability (p);

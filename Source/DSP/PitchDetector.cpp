@@ -1,6 +1,6 @@
 #include "PitchDetector.h"
 
-namespace muze::dsp
+namespace vocalyst::dsp
 {
 
 void PitchDetector::prepare (double sampleRate)
@@ -141,4 +141,4 @@ void PitchDetector::analyse()
     conf = juce::jlimit (0.f, 1.f, 1.f - cmnd[(size_t) tauEst]);
 }
 
-} // namespace muze::dsp
+} // namespace vocalyst::dsp

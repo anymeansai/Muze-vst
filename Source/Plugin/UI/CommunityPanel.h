@@ -1,16 +1,16 @@
 #pragma once
-#include "MuzeLookAndFeel.h"
-#include "../MuzeProcessor.h"
+#include "VocalystLookAndFeel.h"
+#include "../VocalystProcessor.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-// Shared presets: a local library folder (Documents/Muze/Community) that users exchange
-// as .muzepreset files. No online backend is involved.
+// Shared presets: a local library folder (Documents/Vocalyst/Community) that users exchange
+// as .vocalystpreset files. No online backend is involved.
 class CommunityPanel : public juce::Component
 {
 public:
-    explicit CommunityPanel (MuzeProcessor&);
+    explicit CommunityPanel (VocalystProcessor&);
     void paint (juce::Graphics&) override;
     void resized() override;
     void refresh();
@@ -29,7 +29,7 @@ private:
     void shareCurrent();
     void importFile();
 
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     Model model { *this };
     juce::ListBox list;
     std::vector<Item> items;
@@ -39,4 +39,4 @@ private:
     std::unique_ptr<juce::FileChooser> chooser;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

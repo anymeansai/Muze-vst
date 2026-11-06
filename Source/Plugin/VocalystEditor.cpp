@@ -1,10 +1,10 @@
-#include "MuzeEditor.h"
+#include "VocalystEditor.h"
 
-namespace muze
+namespace vocalyst
 {
 
-MuzeEditor::MuzeEditor (MuzeProcessor& p)
-    : AudioProcessorEditor (p), muzeProcessor (p),
+VocalystEditor::VocalystEditor (VocalystProcessor& p)
+    : AudioProcessorEditor (p), vocalystProcessor (p),
       header (p), footer (p), presetsPanel (p), mixView (p), community (p), analyze (p)
 {
     setLookAndFeel (&lnf);
@@ -20,18 +20,18 @@ MuzeEditor::MuzeEditor (MuzeProcessor& p)
     analyze.onClose = [this] { analyze.setVisible (false); };
 
     setSize (defaultWidth, defaultHeight);
-    showTab ((int) muzeProcessor.getUiProperty ("tab", 1));
+    showTab ((int) vocalystProcessor.getUiProperty ("tab", 1));
 }
 
-MuzeEditor::~MuzeEditor()
+VocalystEditor::~VocalystEditor()
 {
     setLookAndFeel (nullptr);
 }
 
-void MuzeEditor::showTab (int tab)
+void VocalystEditor::showTab (int tab)
 {
     tab = juce::jlimit (0, 2, tab);
-    muzeProcessor.setUiProperty ("tab", tab);
+    vocalystProcessor.setUiProperty ("tab", tab);
     header.setTab (tab);
     presetsPanel.setVisible (tab == ui::HeaderBar::Presets);
     mixView.setVisible (tab == ui::HeaderBar::Mix);
@@ -40,18 +40,18 @@ void MuzeEditor::showTab (int tab)
     if (tab == ui::HeaderBar::Presets) presetsPanel.refreshUserPresets();
 }
 
-void MuzeEditor::setSimpleMode (bool simple)
+void VocalystEditor::setSimpleMode (bool simple)
 {
-    muzeProcessor.setSimpleMode (simple);
+    vocalystProcessor.setSimpleMode (simple);
     mixView.refreshMode();
 }
 
-void MuzeEditor::paint (juce::Graphics& g)
+void VocalystEditor::paint (juce::Graphics& g)
 {
     g.fillAll (ui::colours::bg());
 }
 
-void MuzeEditor::resized()
+void VocalystEditor::resized()
 {
     auto r = getLocalBounds();
     header.setBounds (r.removeFromTop (64));
@@ -62,4 +62,4 @@ void MuzeEditor::resized()
     analyze.setBounds (getLocalBounds());
 }
 
-} // namespace muze
+} // namespace vocalyst

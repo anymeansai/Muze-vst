@@ -1,6 +1,6 @@
 #include "PitchShifter.h"
 
-namespace muze::dsp
+namespace vocalyst::dsp
 {
 
 void PitchShifter::prepare (double sampleRate, int numChannels)
@@ -83,4 +83,4 @@ void PitchShifter::processFrame (const float* in, float* out, int numChannels)
     }
 }
 
-} // namespace muze::dsp
+} // namespace vocalyst::dsp

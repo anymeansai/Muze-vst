@@ -1,8 +1,8 @@
 #pragma once
-#include "MuzeLookAndFeel.h"
-#include "../MuzeProcessor.h"
+#include "VocalystLookAndFeel.h"
+#include "../VocalystProcessor.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 class LevelMeter : public juce::Component
@@ -17,15 +17,15 @@ private:
 class FooterBar : public juce::Component, private juce::Timer
 {
 public:
-    explicit FooterBar (MuzeProcessor&);
+    explicit FooterBar (VocalystProcessor&);
     void paint (juce::Graphics&) override;
     void resized() override;
 private:
     void timerCallback() override;
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     Knob inKnob, mixKnob, outKnob;
     LevelMeter inMeter, outMeter;
     juce::Label latencyLabel, hint;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

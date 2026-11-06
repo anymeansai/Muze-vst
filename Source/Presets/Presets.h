@@ -2,7 +2,7 @@
 #include <juce_core/juce_core.h>
 #include <vector>
 
-namespace muze
+namespace vocalyst
 {
 
 struct Preset
@@ -25,7 +25,7 @@ namespace presets
     int  count (bool adlib);
     int  indexOf (const juce::String& name);               // -1 if not a factory preset
     Preset parseCompact (const juce::String& encoded);     // "name|genre|cat|desc|chain|k=v;k=v"
-    juce::String fileExtension();                          // ".muzepreset"
+    juce::String fileExtension();                          // ".vocalystpreset"
 }
 
-} // namespace muze
+} // namespace vocalyst

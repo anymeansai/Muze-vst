@@ -1,7 +1,7 @@
 #pragma once
 #include <juce_core/juce_core.h>
 
-namespace muze
+namespace vocalyst
 {
 
 // Musical keys / scales shared by Tune and Auto Key.
@@ -22,4 +22,4 @@ namespace scales
     inline constexpr int Chromatic = 0, Major = 1, Minor = 2;
 }
 
-} // namespace muze
+} // namespace vocalyst

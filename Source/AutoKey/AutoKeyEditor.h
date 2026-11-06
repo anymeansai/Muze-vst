@@ -1,8 +1,8 @@
 #pragma once
 #include "AutoKeyProcessor.h"
-#include "../Plugin/UI/MuzeLookAndFeel.h"
+#include "../Plugin/UI/VocalystLookAndFeel.h"
 
-namespace muze
+namespace vocalyst
 {
 
 class AutoKeyEditor final : public juce::AudioProcessorEditor, private juce::Timer
@@ -15,11 +15,11 @@ public:
 private:
     void timerCallback() override;
     AutoKeyProcessor& keyProcessor;
-    ui::MuzeLookAndFeel lnf;
+    ui::VocalystLookAndFeel lnf;
     KeyDetector::Result result;
-    juce::TextButton sendBtn { "SEND TO MUZE" }, resetBtn { "RESET" };
+    juce::TextButton sendBtn { "SEND TO VOCALYST" }, resetBtn { "RESET" };
     ui::PillButton autoBtn { "AUTO SEND" };
     juce::Label status;
 };
 
-} // namespace muze
+} // namespace vocalyst

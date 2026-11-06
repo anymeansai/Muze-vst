@@ -1,9 +1,9 @@
 #include "CommunityPanel.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
-CommunityPanel::CommunityPanel (MuzeProcessor& p) : processor (p)
+CommunityPanel::CommunityPanel (VocalystProcessor& p) : processor (p)
 {
     list.setModel (&model);
     list.setRowHeight (48);
@@ -21,8 +21,8 @@ CommunityPanel::CommunityPanel (MuzeProcessor& p) : processor (p)
     info.setFont (font (12.f));
     info.setColour (juce::Label::textColourId, colours::textDim());
     info.setJustificationType (juce::Justification::centredLeft);
-    info.setText ("Community presets are .muzepreset files in " + sharedkey::communityDirectory().getFullPathName()
-                  + ". Share yours, or drop files from other Muze users there and press Refresh.", juce::dontSendNotification);
+    info.setText ("Community presets are .vocalystpreset files in " + sharedkey::communityDirectory().getFullPathName()
+                  + ". Share yours, or drop files from other Vocalyst users there and press Refresh.", juce::dontSendNotification);
     addAndMakeVisible (info);
     refresh();
 }
@@ -76,7 +76,7 @@ void CommunityPanel::shareCurrent()
 
 void CommunityPanel::importFile()
 {
-    chooser = std::make_unique<juce::FileChooser> ("Import Muze preset", juce::File(), "*" + presets::fileExtension() + ";*.json");
+    chooser = std::make_unique<juce::FileChooser> ("Import Vocalyst preset", juce::File(), "*" + presets::fileExtension() + ";*.json");
     chooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles | juce::FileBrowserComponent::canSelectMultipleItems,
         [this] (const juce::FileChooser& fc)
         {
@@ -118,7 +118,7 @@ void CommunityPanel::paint (juce::Graphics& g)
     {
         g.setColour (colours::textDim());
         g.setFont (font (14.f));
-        g.drawFittedText ("No shared presets yet.\nPress SHARE CURRENT PRESET to publish your chain to the community folder,\nor IMPORT FILE to add a .muzepreset someone sent you.",
+        g.drawFittedText ("No shared presets yet.\nPress SHARE CURRENT PRESET to publish your chain to the community folder,\nor IMPORT FILE to add a .vocalystpreset someone sent you.",
                           list.getBounds(), juce::Justification::centred, 4);
     }
 }
@@ -139,4 +139,4 @@ void CommunityPanel::resized()
     list.setBounds (r);
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

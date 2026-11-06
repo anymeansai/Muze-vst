@@ -1,6 +1,6 @@
 #include "AutoKeyEditor.h"
 
-namespace muze
+namespace vocalyst
 {
 using namespace ui;
 
@@ -9,7 +9,7 @@ AutoKeyEditor::AutoKeyEditor (AutoKeyProcessor& p) : AudioProcessorEditor (p), k
     setLookAndFeel (&lnf);
     addAndMakeVisible (sendBtn); addAndMakeVisible (resetBtn); addAndMakeVisible (autoBtn);
     sendBtn.setColour (juce::TextButton::buttonColourId, colours::accent());
-    sendBtn.onClick = [this] { keyProcessor.sendToMuze(); timerCallback(); };
+    sendBtn.onClick = [this] { keyProcessor.sendToVocalyst(); timerCallback(); };
     resetBtn.onClick = [this] { keyProcessor.detector().reset(); timerCallback(); };
     autoBtn.setActive (keyProcessor.isAutoSend());
     autoBtn.onClick = [this] { keyProcessor.setAutoSend (! keyProcessor.isAutoSend()); autoBtn.setActive (keyProcessor.isAutoSend()); };
@@ -28,7 +28,7 @@ void AutoKeyEditor::timerCallback()
 {
     result = keyProcessor.current();
     auto sent = keyProcessor.lastSentText();
-    status.setText (sent.isNotEmpty() ? "Sent " + sent : "Place on the beat or master bus. Muze picks the key up from the AUTO KEY menu.", juce::dontSendNotification);
+    status.setText (sent.isNotEmpty() ? "Sent " + sent : "Place on the beat or master bus. Vocalyst picks the key up from the AUTO KEY menu.", juce::dontSendNotification);
     repaint();
 }
 
@@ -43,7 +43,7 @@ void AutoKeyEditor::paint (juce::Graphics& g)
     head.removeFromLeft (8);
     g.setColour (colours::text());
     g.setFont (font (20.f, true));
-    g.drawText ("MUZE AUTO KEY", head, juce::Justification::centredLeft);
+    g.drawText ("VOCALYST AUTO KEY", head, juce::Justification::centredLeft);
 
     r.removeFromTop (6);
     auto keyArea = r.removeFromTop (90);
@@ -105,4 +105,4 @@ void AutoKeyEditor::resized()
     resetBtn.setBounds (row);
 }
 
-} // namespace muze
+} // namespace vocalyst

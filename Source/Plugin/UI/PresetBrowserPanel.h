@@ -1,15 +1,15 @@
 #pragma once
-#include "MuzeLookAndFeel.h"
-#include "../MuzeProcessor.h"
+#include "VocalystLookAndFeel.h"
+#include "../VocalystProcessor.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 class PresetBrowserPanel : public juce::Component,
-                           private MuzeProcessor::Listener
+                           private VocalystProcessor::Listener
 {
 public:
-    explicit PresetBrowserPanel (MuzeProcessor&);
+    explicit PresetBrowserPanel (VocalystProcessor&);
     ~PresetBrowserPanel() override;
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -44,7 +44,7 @@ private:
     void saveUserPreset();
     void deleteUserPreset();
 
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     PillButton catMain { "MAIN VOCAL" }, catAdlib { "AD-LIBS" }, catUser { "USER" };
     juce::TextButton saveBtn { "SAVE AS USER PRESET" }, deleteBtn { "DELETE" }, folderBtn { "OPEN FOLDER" };
     juce::Label title, description;
@@ -59,4 +59,4 @@ private:
     int category = MainVocal;
 };
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

@@ -1,9 +1,9 @@
 #pragma once
 #include <juce_core/juce_core.h>
 
-namespace muze::sharedkey
+namespace vocalyst::sharedkey
 {
-    // Small file-based bridge between Muze Auto Key (on the instrumental/master) and Muze (on the vocal).
+    // Small file-based bridge between Vocalyst Auto Key (on the instrumental/master) and Vocalyst (on the vocal).
     struct Info
     {
         bool  valid = false;
@@ -14,7 +14,7 @@ namespace muze::sharedkey
         juce::Time time;
     };
 
-    juce::File muzeDataDirectory();      // ~/Library/Application Support/Muze | %APPDATA%/Muze | ~/.config/Muze
+    juce::File vocalystDataDirectory();      // ~/Library/Application Support/Vocalyst | %APPDATA%/Vocalyst | ~/.config/Vocalyst
     juce::File presetsDirectory();       // user presets
     juce::File communityDirectory();     // shared presets
     juce::File file();                   // autokey.json

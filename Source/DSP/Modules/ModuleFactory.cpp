@@ -1,4 +1,4 @@
-// All 27 Muze effect modules. Each one reads its parameters from the APVTS raw values
+// All 27 Vocalyst effect modules. Each one reads its parameters from the APVTS raw values
 // fetched in Module::attachParameters(), in the order declared in ModuleRegistry.cpp.
 
 #include "../Module.h"
@@ -8,7 +8,7 @@
 #include "../../Core/Scales.h"
 #include <juce_dsp/juce_dsp.h>
 
-namespace muze
+namespace vocalyst
 {
 using namespace dsp;
 
@@ -851,4 +851,4 @@ std::unique_ptr<Module> createModule (ModuleId id)
     }
 }
 
-} // namespace muze
+} // namespace vocalyst

@@ -3,7 +3,7 @@
 #include <juce_graphics/juce_graphics.h>
 #include <vector>
 
-namespace muze
+namespace vocalyst
 {
 
 // The 27 vocal effect modules that can be added, removed and re-ordered in the chain.
@@ -68,4 +68,4 @@ namespace ids
     inline constexpr const char* macroDrive = "macro_drive";
 }
 
-} // namespace muze
+} // namespace vocalyst

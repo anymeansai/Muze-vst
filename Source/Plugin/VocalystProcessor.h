@@ -12,15 +12,15 @@
 #include <atomic>
 #include <vector>
 
-namespace muze
+namespace vocalyst
 {
 
-class MuzeProcessor final : public juce::AudioProcessor,
+class VocalystProcessor final : public juce::AudioProcessor,
                             private juce::Timer
 {
 public:
-    MuzeProcessor();
-    ~MuzeProcessor() override;
+    VocalystProcessor();
+    ~VocalystProcessor() override;
 
     //==========================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -30,7 +30,7 @@ public:
 
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override                  { return true; }
-    const juce::String getName() const override      { return "Muze"; }
+    const juce::String getName() const override      { return "Vocalyst"; }
     bool acceptsMidi() const override                { return false; }
     bool producesMidi() const override               { return false; }
     bool isMidiEffect() const override               { return false; }
@@ -54,8 +54,8 @@ public:
         virtual void presetChanged() {}
         virtual void keyChanged() {}
     };
-    void addMuzeListener (Listener* l)    { listeners.add (l); }
-    void removeMuzeListener (Listener* l) { listeners.remove (l); }
+    void addVocalystListener (Listener* l)    { listeners.add (l); }
+    void removeVocalystListener (Listener* l) { listeners.remove (l); }
 
     //==========================================================================
     // Chain (message thread)
@@ -92,7 +92,7 @@ public:
     int  getScale() const;
     void setKey (int key, int scale);
     KeyDetector& inputKeyDetector()                  { return keyDetector; }
-    bool applySharedKey();                            // pull from Muze Auto Key
+    bool applySharedKey();                            // pull from Vocalyst Auto Key
     bool isAutoKeyLinked() const                     { return (bool) uiState.getProperty ("autoKeyLink", false); }
     void setAutoKeyLinked (bool b)                   { uiState.setProperty ("autoKeyLink", b, nullptr); }
     sharedkey::Info lastSharedKey() const            { return lastShared; }
@@ -156,7 +156,7 @@ private:
     std::atomic<float>* pMTune = nullptr;  std::atomic<float>* pMClean = nullptr; std::atomic<float>* pMTone = nullptr;
     std::atomic<float>* pMSpace = nullptr; std::atomic<float>* pMWidth = nullptr; std::atomic<float>* pMDrive = nullptr;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MuzeProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VocalystProcessor)
 };
 
-} // namespace muze
+} // namespace vocalyst

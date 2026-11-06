@@ -1,8 +1,8 @@
-// Headless UI check: renders the Muze editor (every tab / mode) and the Auto Key editor to PNG.
-// Usage: MuzeScreenshot <output-dir>
+// Headless UI check: renders the Vocalyst editor (every tab / mode) and the Auto Key editor to PNG.
+// Usage: VocalystScreenshot <output-dir>
 
-#include "../Source/Plugin/MuzeProcessor.h"
-#include "../Source/Plugin/MuzeEditor.h"
+#include "../Source/Plugin/VocalystProcessor.h"
+#include "../Source/Plugin/VocalystEditor.h"
 #include "../Source/AutoKey/AutoKeyProcessor.h"
 #include "../Source/AutoKey/AutoKeyEditor.h"
 #include <juce_gui_extra/juce_gui_extra.h>
@@ -10,7 +10,7 @@
 class ScreenshotApp : public juce::JUCEApplication
 {
 public:
-    const juce::String getApplicationName() override { return "MuzeScreenshot"; }
+    const juce::String getApplicationName() override { return "VocalystScreenshot"; }
     const juce::String getApplicationVersion() override { return "1.0"; }
 
     static void save (juce::Component& c, const juce::File& f)
@@ -28,7 +28,7 @@ public:
         if (cmd.trim().isEmpty()) dir = juce::File::getCurrentWorkingDirectory();
         dir.createDirectory();
 
-        muze::MuzeProcessor proc;
+        vocalyst::VocalystProcessor proc;
         proc.prepareToPlay (44100.0, 512);
         // feed some audio so meters / analyzer / key detector have content
         juce::AudioBuffer<float> buf (2, 512); juce::MidiBuffer midi; double ph = 0.0; juce::Random rng;
@@ -39,20 +39,20 @@ public:
         }
         proc.loadFactoryPreset (3);
 
-        auto window = std::make_unique<juce::DocumentWindow> ("Muze", juce::Colours::black, 0);
-        auto* editor = new muze::MuzeEditor (proc);
+        auto window = std::make_unique<juce::DocumentWindow> ("Vocalyst", juce::Colours::black, 0);
+        auto* editor = new vocalyst::VocalystEditor (proc);
         window->setContentOwned (editor, true);
         window->setVisible (true);
 
-        proc.setSimpleMode (true);  editor->showTab (1); editor->setSimpleMode (true);  save (*editor, dir.getChildFile ("muze_mix_simple.png"));
-        proc.setSimpleMode (false); editor->setSimpleMode (false);                    save (*editor, dir.getChildFile ("muze_mix_advanced.png"));
-        editor->showTab (0);  save (*editor, dir.getChildFile ("muze_presets.png"));
-        editor->showTab (2);  save (*editor, dir.getChildFile ("muze_community.png"));
-        editor->showTab (1);  editor->openAnalyze(); save (*editor, dir.getChildFile ("muze_analyze.png"));
+        proc.setSimpleMode (true);  editor->showTab (1); editor->setSimpleMode (true);  save (*editor, dir.getChildFile ("vocalyst_mix_simple.png"));
+        proc.setSimpleMode (false); editor->setSimpleMode (false);                    save (*editor, dir.getChildFile ("vocalyst_mix_advanced.png"));
+        editor->showTab (0);  save (*editor, dir.getChildFile ("vocalyst_presets.png"));
+        editor->showTab (2);  save (*editor, dir.getChildFile ("vocalyst_community.png"));
+        editor->showTab (1);  editor->openAnalyze(); save (*editor, dir.getChildFile ("vocalyst_analyze.png"));
         window->clearContentComponent();
         window.reset();
 
-        muze::AutoKeyProcessor ak;
+        vocalyst::AutoKeyProcessor ak;
         ak.prepareToPlay (44100.0, 512);
         for (int b = 0; b < 300; ++b)
         {
@@ -66,7 +66,7 @@ public:
             ak.processBlock (buf, midi);
         }
         auto akWindow = std::make_unique<juce::DocumentWindow> ("Auto Key", juce::Colours::black, 0);
-        auto* akEditor = new muze::AutoKeyEditor (ak);
+        auto* akEditor = new vocalyst::AutoKeyEditor (ak);
         akWindow->setContentOwned (akEditor, true);
         akWindow->setVisible (true);
         save (*akEditor, dir.getChildFile ("autokey.png"));

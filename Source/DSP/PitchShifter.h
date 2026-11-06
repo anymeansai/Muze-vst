@@ -1,7 +1,7 @@
 #pragma once
 #include "DspUtil.h"
 
-namespace muze::dsp
+namespace vocalyst::dsp
 {
 
 // Time-domain pitch shifter built from two crossfaded delay taps (Doppler style).
@@ -33,4 +33,4 @@ private:
     float  windowSmooth = 0.999f, ratioSmooth = 0.995f;
 };
 
-} // namespace muze::dsp
+} // namespace vocalyst::dsp

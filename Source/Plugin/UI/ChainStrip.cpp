@@ -1,12 +1,12 @@
 #include "ChainStrip.h"
 
-namespace muze::ui
+namespace vocalyst::ui
 {
 
 class ChainStrip::Tile : public juce::Component, public juce::SettableTooltipClient
 {
 public:
-    Tile (ChainStrip& o, MuzeProcessor& p, ModuleId mid) : owner (o), processor (p), id (mid)
+    Tile (ChainStrip& o, VocalystProcessor& p, ModuleId mid) : owner (o), processor (p), id (mid)
     {
         auto& spec = moduleSpec (id);
         power.setClickingTogglesState (true);
@@ -64,7 +64,7 @@ public:
     bool dragged = false;
 private:
     ChainStrip& owner;
-    MuzeProcessor& processor;
+    VocalystProcessor& processor;
     ModuleId id;
     juce::ToggleButton power;
     juce::TextButton remove;
@@ -73,7 +73,7 @@ private:
 };
 
 //==============================================================================
-ChainStrip::ChainStrip (MuzeProcessor& p) : processor (p)
+ChainStrip::ChainStrip (VocalystProcessor& p) : processor (p)
 {
     viewport.setViewedComponent (&container, false);
     viewport.setScrollBarsShown (false, true, false, true);
@@ -81,11 +81,11 @@ ChainStrip::ChainStrip (MuzeProcessor& p) : processor (p)
     addBtn.setColour (juce::TextButton::buttonColourId, colours::accent().withAlpha (0.25f));
     addBtn.onClick = [this] { showAddMenu(); };
     container.addAndMakeVisible (addBtn);
-    processor.addMuzeListener (this);
+    processor.addVocalystListener (this);
     rebuild();
 }
 
-ChainStrip::~ChainStrip() { cancelPendingUpdate(); processor.removeMuzeListener (this); }
+ChainStrip::~ChainStrip() { cancelPendingUpdate(); processor.removeVocalystListener (this); }
 
 void ChainStrip::chainChanged()
 {
@@ -215,4 +215,4 @@ void ChainStrip::resized()
     layoutTiles (false);
 }
 
-} // namespace muze::ui
+} // namespace vocalyst::ui

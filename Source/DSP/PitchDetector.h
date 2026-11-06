@@ -2,7 +2,7 @@
 #include "DspUtil.h"
 #include <functional>
 
-namespace muze::dsp
+namespace vocalyst::dsp
 {
 
 // Monophonic pitch detector (YIN) operating on a 2x decimated internal stream.
@@ -38,4 +38,4 @@ private:
     bool  newEstimate = false;
 };
 
-} // namespace muze::dsp
+} // namespace vocalyst::dsp
