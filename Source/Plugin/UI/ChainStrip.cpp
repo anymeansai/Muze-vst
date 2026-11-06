@@ -81,11 +81,11 @@ ChainStrip::ChainStrip (MuzeProcessor& p) : processor (p)
     addBtn.setColour (juce::TextButton::buttonColourId, colours::accent().withAlpha (0.25f));
     addBtn.onClick = [this] { showAddMenu(); };
     container.addAndMakeVisible (addBtn);
-    processor.addListener (this);
+    processor.addMuzeListener (this);
     rebuild();
 }
 
-ChainStrip::~ChainStrip() { cancelPendingUpdate(); processor.removeListener (this); }
+ChainStrip::~ChainStrip() { cancelPendingUpdate(); processor.removeMuzeListener (this); }
 
 void ChainStrip::chainChanged()
 {

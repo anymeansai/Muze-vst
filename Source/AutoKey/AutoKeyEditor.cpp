@@ -4,15 +4,15 @@ namespace muze
 {
 using namespace ui;
 
-AutoKeyEditor::AutoKeyEditor (AutoKeyProcessor& p) : AudioProcessorEditor (p), processor (p)
+AutoKeyEditor::AutoKeyEditor (AutoKeyProcessor& p) : AudioProcessorEditor (p), keyProcessor (p)
 {
     setLookAndFeel (&lnf);
     addAndMakeVisible (sendBtn); addAndMakeVisible (resetBtn); addAndMakeVisible (autoBtn);
     sendBtn.setColour (juce::TextButton::buttonColourId, colours::accent());
-    sendBtn.onClick = [this] { processor.sendToMuze(); timerCallback(); };
-    resetBtn.onClick = [this] { processor.detector().reset(); timerCallback(); };
-    autoBtn.setActive (processor.isAutoSend());
-    autoBtn.onClick = [this] { processor.setAutoSend (! processor.isAutoSend()); autoBtn.setActive (processor.isAutoSend()); };
+    sendBtn.onClick = [this] { keyProcessor.sendToMuze(); timerCallback(); };
+    resetBtn.onClick = [this] { keyProcessor.detector().reset(); timerCallback(); };
+    autoBtn.setActive (keyProcessor.isAutoSend());
+    autoBtn.onClick = [this] { keyProcessor.setAutoSend (! keyProcessor.isAutoSend()); autoBtn.setActive (keyProcessor.isAutoSend()); };
     status.setFont (font (11.5f));
     status.setColour (juce::Label::textColourId, colours::textDim());
     status.setJustificationType (juce::Justification::centred);
@@ -26,8 +26,8 @@ AutoKeyEditor::~AutoKeyEditor() { setLookAndFeel (nullptr); }
 
 void AutoKeyEditor::timerCallback()
 {
-    result = processor.current();
-    auto sent = processor.lastSentText();
+    result = keyProcessor.current();
+    auto sent = keyProcessor.lastSentText();
     status.setText (sent.isNotEmpty() ? "Sent " + sent : "Place on the beat or master bus. Muze picks the key up from the AUTO KEY menu.", juce::dontSendNotification);
     repaint();
 }

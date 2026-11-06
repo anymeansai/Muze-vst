@@ -25,7 +25,7 @@ public:
     static constexpr int defaultWidth = 1080, defaultHeight = 660;
 
 private:
-    MuzeProcessor& processor;
+    MuzeProcessor& muzeProcessor;
     ui::MuzeLookAndFeel lnf;
     ui::HeaderBar header;
     ui::FooterBar footer;

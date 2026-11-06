@@ -54,8 +54,8 @@ public:
         virtual void presetChanged() {}
         virtual void keyChanged() {}
     };
-    void addListener (Listener* l)    { listeners.add (l); }
-    void removeListener (Listener* l) { listeners.remove (l); }
+    void addMuzeListener (Listener* l)    { listeners.add (l); }
+    void removeMuzeListener (Listener* l) { listeners.remove (l); }
 
     //==========================================================================
     // Chain (message thread)

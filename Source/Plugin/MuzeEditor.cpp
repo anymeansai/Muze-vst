@@ -4,7 +4,7 @@ namespace muze
 {
 
 MuzeEditor::MuzeEditor (MuzeProcessor& p)
-    : AudioProcessorEditor (p), processor (p),
+    : AudioProcessorEditor (p), muzeProcessor (p),
       header (p), footer (p), presetsPanel (p), mixView (p), community (p), analyze (p)
 {
     setLookAndFeel (&lnf);
@@ -20,7 +20,7 @@ MuzeEditor::MuzeEditor (MuzeProcessor& p)
     analyze.onClose = [this] { analyze.setVisible (false); };
 
     setSize (defaultWidth, defaultHeight);
-    showTab ((int) processor.getUiProperty ("tab", 1));
+    showTab ((int) muzeProcessor.getUiProperty ("tab", 1));
 }
 
 MuzeEditor::~MuzeEditor()
@@ -31,7 +31,7 @@ MuzeEditor::~MuzeEditor()
 void MuzeEditor::showTab (int tab)
 {
     tab = juce::jlimit (0, 2, tab);
-    processor.setUiProperty ("tab", tab);
+    muzeProcessor.setUiProperty ("tab", tab);
     header.setTab (tab);
     presetsPanel.setVisible (tab == ui::HeaderBar::Presets);
     mixView.setVisible (tab == ui::HeaderBar::Mix);
@@ -42,7 +42,7 @@ void MuzeEditor::showTab (int tab)
 
 void MuzeEditor::setSimpleMode (bool simple)
 {
-    processor.setSimpleMode (simple);
+    muzeProcessor.setSimpleMode (simple);
     mixView.refreshMode();
 }
 

@@ -49,14 +49,14 @@ HeaderBar::HeaderBar (MuzeProcessor& p) : processor (p)
     analyzeBtn.setColour (juce::TextButton::buttonColourId, colours::accent2().withAlpha (0.25f));
     analyzeBtn.onClick = [this] { if (onAnalyze) onAnalyze(); };
 
-    processor.addListener (this);
+    processor.addMuzeListener (this);
     refresh();
     startTimerHz (4);
 }
 
 HeaderBar::~HeaderBar()
 {
-    processor.removeListener (this);
+    processor.removeMuzeListener (this);
 }
 
 void HeaderBar::setTab (int tab)

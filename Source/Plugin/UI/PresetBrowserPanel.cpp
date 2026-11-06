@@ -33,10 +33,10 @@ PresetBrowserPanel::PresetBrowserPanel (MuzeProcessor& p) : processor (p)
     refreshUserPresets();
     const bool adlib = (bool) processor.getUiProperty ("presetAdlib", false);
     setCategory (adlib ? Adlib : MainVocal);
-    processor.addListener (this);
+    processor.addMuzeListener (this);
 }
 
-PresetBrowserPanel::~PresetBrowserPanel() { processor.removeListener (this); }
+PresetBrowserPanel::~PresetBrowserPanel() { processor.removeMuzeListener (this); }
 
 void PresetBrowserPanel::refreshUserPresets()
 {

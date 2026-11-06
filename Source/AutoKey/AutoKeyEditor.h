@@ -14,7 +14,7 @@ public:
     void resized() override;
 private:
     void timerCallback() override;
-    AutoKeyProcessor& processor;
+    AutoKeyProcessor& keyProcessor;
     ui::MuzeLookAndFeel lnf;
     KeyDetector::Result result;
     juce::TextButton sendBtn { "SEND TO MUZE" }, resetBtn { "RESET" };

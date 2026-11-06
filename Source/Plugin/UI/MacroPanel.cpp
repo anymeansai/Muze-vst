@@ -32,10 +32,10 @@ MacroPanel::MacroPanel (MuzeProcessor& p) : processor (p)
     sub.setColour (juce::Label::textColourId, colours::textDim());
     sub.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (sub);
-    processor.addListener (this);
+    processor.addMuzeListener (this);
 }
 
-MacroPanel::~MacroPanel() { processor.removeListener (this); }
+MacroPanel::~MacroPanel() { processor.removeMuzeListener (this); }
 
 void MacroPanel::paint (juce::Graphics& g)
 {
