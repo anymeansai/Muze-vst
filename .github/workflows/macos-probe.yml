@@ -1,0 +1,13 @@
+name: macOS runner probe
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15, macos-14, macos-13, macos-15-large, macos-14-large]
+    steps:
+      - run: uname -a && sw_vers
