@@ -22,7 +22,7 @@ public:
     void setSimpleMode (bool simple);
     void openAnalyze() { analyze.open(); }
 
-    static constexpr int defaultWidth = 1080, defaultHeight = 660;
+    static constexpr int defaultWidth = 1120, defaultHeight = 660;
 
 private:
     VocalystProcessor& vocalystProcessor;

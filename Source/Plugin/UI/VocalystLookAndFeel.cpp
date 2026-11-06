@@ -107,7 +107,7 @@ void VocalystLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& b
     bool active = b.getToggleState();
     if (auto* pill = dynamic_cast<PillButton*> (&b)) active = active || pill->isActive();
     g.setColour (active ? juce::Colours::white : colours::text().withAlpha (b.isEnabled() ? 1.f : 0.4f));
-    g.drawFittedText (b.getButtonText(), b.getLocalBounds().reduced (6, 0), juce::Justification::centred, 1);
+    g.drawFittedText (b.getButtonText(), b.getLocalBounds().reduced (3, 0), juce::Justification::centred, 1);
 }
 
 void VocalystLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b, bool highlighted, bool)

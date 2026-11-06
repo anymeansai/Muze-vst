@@ -145,25 +145,25 @@ void HeaderBar::resized()
     // preset navigation
     prevBtn.setBounds (r.removeFromLeft (30).reduced (0, 6));
     r.removeFromLeft (4);
-    auto nameArea = r.removeFromLeft (220);
+    auto nameArea = r.removeFromLeft (200);
     presetName.setBounds (nameArea.removeFromTop (nameArea.getHeight() / 2 + 2));
     presetMeta.setBounds (nameArea);
     r.removeFromLeft (4);
     nextBtn.setBounds (r.removeFromLeft (30).reduced (0, 6));
 
     // right side: analyze, auto key, key boxes
-    analyzeBtn.setBounds (r.removeFromRight (84).reduced (0, 6));
+    analyzeBtn.setBounds (r.removeFromRight (80).reduced (0, 6));
     r.removeFromRight (8);
-    autoKeyBtn.setBounds (r.removeFromRight (92).reduced (0, 6));
+    autoKeyBtn.setBounds (r.removeFromRight (88).reduced (0, 6));
     r.removeFromRight (8);
-    scaleBox.setBounds (r.removeFromRight (120).reduced (0, 6));
+    scaleBox.setBounds (r.removeFromRight (110).reduced (0, 6));
     r.removeFromRight (4);
     keyBox.setBounds (r.removeFromRight (56).reduced (0, 6));
     keyLabel.setBounds (r.removeFromRight (34).reduced (0, 6));
     r.removeFromRight (10);
 
     // tabs centred in the remaining space
-    auto tabs = r.withSizeKeepingCentre (juce::jmin (r.getWidth() - 16, 300), r.getHeight()).reduced (0, 6);
+    auto tabs = r.withSizeKeepingCentre (juce::jmin (r.getWidth() - 12, 300), r.getHeight()).reduced (0, 6);
     const int w = tabs.getWidth() / 3;
     tabPresets.setBounds (tabs.removeFromLeft (w).reduced (2, 0));
     tabMix.setBounds (tabs.removeFromLeft (w).reduced (2, 0));
