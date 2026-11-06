@@ -58,8 +58,8 @@ Requirements: CMake 3.22+, a C++17 compiler, git. Linux additionally needs the u
 (`libasound2-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxext-dev libfreetype-dev libfontconfig1-dev libcurl4-openssl-dev libgl1-mesa-dev`).
 
 ```bash
-git clone https://github.com/anymeansai/Muze-vst.git
-cd Muze-vst
+git clone https://github.com/anymeansai/Vocalyst-vst.git
+cd Vocalyst-vst
 cmake -B build -DCMAKE_BUILD_TYPE=Release      # downloads JUCE 8.0.15 automatically
 cmake --build build --config Release -j
 ```
