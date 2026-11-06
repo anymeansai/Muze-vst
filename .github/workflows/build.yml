@@ -1,0 +1,167 @@
+name: Build
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-14
+            cmake_extra: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+            tests: build/MuzeTests_artefacts/Release/MuzeTests
+          - name: Windows
+            os: windows-2022
+            cmake_extra: ""
+            tests: build/MuzeTests_artefacts/Release/MuzeTests.exe
+          - name: Linux
+            os: ubuntu-22.04
+            cmake_extra: ""
+            tests: build/MuzeTests_artefacts/Release/MuzeTests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev \
+            libxext-dev libxcomposite-dev libfreetype-dev libfontconfig1-dev libcurl4-openssl-dev \
+            libgl1-mesa-dev libglu1-mesa-dev ninja-build
+
+      - name: Configure
+        shell: bash
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ${{ matrix.cmake_extra }}
+
+      - name: Build
+        shell: bash
+        run: cmake --build build --config ${{ env.BUILD_TYPE }} --parallel 4
+
+      - name: Run offline tests
+        shell: bash
+        run: ${{ matrix.tests }}
+
+      # ---------------------------------------------------------------- macOS
+      - name: Sign (ad-hoc) and package macOS bundles
+        if: runner.os == 'macOS'
+        run: |
+          set -e
+          OUT=dist/Muze-macOS
+          mkdir -p "$OUT/VST3" "$OUT/AU" "$OUT/Standalone"
+          for bundle in build/Muze_artefacts/Release/VST3/*.vst3 build/MuzeAutoKey_artefacts/Release/VST3/*.vst3; do
+            codesign --force --deep --sign - "$bundle"
+            cp -R "$bundle" "$OUT/VST3/"
+          done
+          for bundle in build/Muze_artefacts/Release/AU/*.component build/MuzeAutoKey_artefacts/Release/AU/*.component; do
+            codesign --force --deep --sign - "$bundle"
+            cp -R "$bundle" "$OUT/AU/"
+          done
+          for app in build/Muze_artefacts/Release/Standalone/*.app build/MuzeAutoKey_artefacts/Release/Standalone/*.app; do
+            codesign --force --deep --sign - "$app"
+            cp -R "$app" "$OUT/Standalone/"
+          done
+          cp docs/INSTALL-macOS.md "$OUT/README.txt"
+          lipo -archs "build/Muze_artefacts/Release/VST3/Muze.vst3/Contents/MacOS/Muze"
+          cd dist && ditto -c -k --keepParent Muze-macOS Muze-macOS.zip
+
+      - name: Upload macOS build
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Muze-macOS
+          path: dist/Muze-macOS.zip
+
+      - name: Validate VST3 with pluginval (macOS)
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        run: |
+          curl -L -o pluginval.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
+          unzip -q pluginval.zip
+          ./pluginval.app/Contents/MacOS/pluginval --strictness-level 5 --validate-in-process --skip-gui-tests --timeout-ms 120000 \
+            "build/Muze_artefacts/Release/VST3/Muze.vst3"
+          ./pluginval.app/Contents/MacOS/pluginval --strictness-level 5 --validate-in-process --skip-gui-tests --timeout-ms 120000 \
+            "build/MuzeAutoKey_artefacts/Release/VST3/Muze Auto Key.vst3"
+
+      - name: Validate AU with auval (macOS)
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        run: |
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R build/Muze_artefacts/Release/AU/Muze.component ~/Library/Audio/Plug-Ins/Components/
+          cp -R "build/MuzeAutoKey_artefacts/Release/AU/Muze Auto Key.component" ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          auval -v aufx Muz1 Mzrp
+          auval -v aufx Mzak Mzrp
+
+      # -------------------------------------------------------------- Windows
+      - name: Package Windows build
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -e
+          OUT=dist/Muze-Windows
+          mkdir -p "$OUT/VST3" "$OUT/Standalone"
+          cp -R build/Muze_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
+          cp -R build/MuzeAutoKey_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
+          cp build/Muze_artefacts/Release/Standalone/*.exe "$OUT/Standalone/"
+          cp build/MuzeAutoKey_artefacts/Release/Standalone/*.exe "$OUT/Standalone/"
+          cd dist && 7z a -r Muze-Windows.zip Muze-Windows > /dev/null
+
+      - name: Upload Windows build
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Muze-Windows
+          path: dist/Muze-Windows.zip
+
+      # ---------------------------------------------------------------- Linux
+      - name: Package Linux build
+        if: runner.os == 'Linux'
+        run: |
+          set -e
+          OUT=dist/Muze-Linux
+          mkdir -p "$OUT/VST3" "$OUT/Standalone"
+          cp -R build/Muze_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
+          cp -R build/MuzeAutoKey_artefacts/Release/VST3/*.vst3 "$OUT/VST3/"
+          cp build/Muze_artefacts/Release/Standalone/Muze "$OUT/Standalone/"
+          cp "build/MuzeAutoKey_artefacts/Release/Standalone/Muze Auto Key" "$OUT/Standalone/"
+          cd dist && tar czf Muze-Linux.tar.gz Muze-Linux
+
+      - name: Upload Linux build
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Muze-Linux
+          path: dist/Muze-Linux.tar.gz
+
+  release:
+    name: Publish release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/Muze-macOS/Muze-macOS.zip
+            artifacts/Muze-Windows/Muze-Windows.zip
+            artifacts/Muze-Linux/Muze-Linux.tar.gz
+          generate_release_notes: true

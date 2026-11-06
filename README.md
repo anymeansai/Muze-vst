@@ -47,6 +47,15 @@ you point CMake at an AAX SDK.
 **Tune** is a real-time monophonic pitch corrector (YIN detection + period-synchronous dual-tap shifter) with
 Amount, Speed and Humanize, snapping to the selected key/scale. Latency is reported to the host only while Tune is active.
 
+## Download (macOS, Windows, Linux)
+
+Every push builds all three platforms on GitHub Actions. Open the **Actions** tab of this repository, pick the latest
+green run, and download `Muze-macOS` (universal VST3 + AU + Standalone), `Muze-Windows` or `Muze-Linux` from
+*Artifacts*. Tagging a commit `v1.0.0` publishes the same zips on the **Releases** page.
+
+macOS users: the bundles are ad-hoc signed, not notarized, so follow [docs/INSTALL-macOS.md](docs/INSTALL-macOS.md)
+(copy to `~/Library/Audio/Plug-Ins/VST3`, clear the quarantine flag with `xattr`, rescan).
+
 ## Building
 
 Requirements: CMake 3.22+, a C++17 compiler, git. Linux additionally needs the usual JUCE packages
