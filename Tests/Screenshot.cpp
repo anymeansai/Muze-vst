@@ -46,8 +46,11 @@ public:
 
         proc.setSimpleMode (true);  editor->showTab (1); editor->setSimpleMode (true);  save (*editor, dir.getChildFile ("vocalyst_mix_simple.png"));
         proc.setSimpleMode (false); editor->setSimpleMode (false);                    save (*editor, dir.getChildFile ("vocalyst_mix_advanced.png"));
+        proc.setUiProperty ("meters", true); editor->setMetersVisible (true);            save (*editor, dir.getChildFile ("vocalyst_meters.png"));
+        editor->setMetersVisible (false);
         editor->showTab (0);  save (*editor, dir.getChildFile ("vocalyst_presets.png"));
         editor->showTab (2);  save (*editor, dir.getChildFile ("vocalyst_community.png"));
+        editor->showTab (2);  save (*editor, dir.getChildFile ("vocalyst_tune.png"));
         editor->showTab (1);  editor->openAnalyze(); save (*editor, dir.getChildFile ("vocalyst_analyze.png"));
         window->clearContentComponent();
         window.reset();

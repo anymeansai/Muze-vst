@@ -12,6 +12,7 @@ class PitchDetector
 public:
     void prepare (double sampleRate);
     void reset();
+    void setRange (float minHz, float maxHz);   // detection limits
 
     void push (float sample);
 

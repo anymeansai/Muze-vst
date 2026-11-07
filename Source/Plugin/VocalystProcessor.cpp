@@ -71,6 +71,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout VocalystProcessor::createLay
     params.push_back (makeFloat (ids::macroSpace, "Space", 0.f,    100.f, 50.f, 1.f, "%", 0));
     params.push_back (makeFloat (ids::macroWidth, "Width", 0.f,    100.f, 50.f, 1.f, "%", 0));
     params.push_back (makeFloat (ids::macroDrive, "Drive", 0.f,    100.f, 50.f, 1.f, "%", 0));
+    params.push_back (std::make_unique<AudioParameterBool> (ParameterID { ids::bypass, 1 }, "Bypass", false));
+    params.push_back (std::make_unique<AudioParameterBool> (ParameterID { ids::match, 1 },  "Loudness Match", false));
+    for (int i = 0; i < 12; ++i)
+        params.push_back (std::make_unique<AudioParameterBool> (ParameterID { ids::note (i), 1 }, "Note " + scales::keyNames()[i], true));
     return { params.begin(), params.end() };
 }
 
@@ -97,6 +101,12 @@ VocalystProcessor::VocalystProcessor()
     pMSpace = apvts.getRawParameterValue (ids::macroSpace);
     pMWidth = apvts.getRawParameterValue (ids::macroWidth);
     pMDrive = apvts.getRawParameterValue (ids::macroDrive);
+    pBypass = apvts.getRawParameterValue (ids::bypass);
+    pMatch = apvts.getRawParameterValue (ids::match);
+    pTuneMidi = apvts.getRawParameterValue (paramId (ModuleId::Tune, "midi"));
+    for (int i = 0; i < 12; ++i) pNotes[(size_t) i] = apvts.getRawParameterValue (ids::note (i));
+    apvts.addParameterListener (ids::key, this);
+    apvts.addParameterListener (ids::scale, this);
 
     uiState.setProperty ("mode", "simple", nullptr);
     uiState.setProperty ("tab", 0, nullptr);
@@ -114,6 +124,8 @@ VocalystProcessor::VocalystProcessor()
 VocalystProcessor::~VocalystProcessor()
 {
     stopTimer();
+    apvts.removeParameterListener (ids::key, this);
+    apvts.removeParameterListener (ids::scale, this);
 }
 
 std::vector<ModuleId> VocalystProcessor::defaultChain()
@@ -135,6 +147,9 @@ void VocalystProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     for (auto& t : tilt) t.prepare (sampleRate, 1000.f);
     keyDetector.prepare (sampleRate);
     vocalAnalyzer.prepare (sampleRate);
+    meterEngine.prepare (sampleRate);
+    for (auto& d : dryDelay) d.prepare ((int) (0.15 * sampleRate) + 16);
+    dryPow = wetPow = 0.f; matchGain = 1.f; matchGainDb.store (0.f);
     inGainSm.reset (sampleRate, 0.02); outGainSm.reset (sampleRate, 0.02); mixSm.reset (sampleRate, 0.02);
     inGainSm.setCurrentAndTargetValue (dsp::dbToGain (pInGain->load()));
     outGainSm.setCurrentAndTargetValue (dsp::dbToGain (pOutGain->load()));
@@ -154,7 +169,7 @@ bool VocalystProcessor::isBusesLayoutSupported (const BusesLayout& layouts) cons
     return true;
 }
 
-void VocalystProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
+void VocalystProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
 {
     juce::ScopedNoDenormals noDenormals;
     const int n = buffer.getNumSamples();
@@ -196,11 +211,39 @@ void VocalystProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     dry.copyFrom (0, 0, work, 0, 0, n);
     dry.copyFrom (1, 0, work, 1, 0, n);
 
-    keyDetector.push (monoScratch.data(), n);
-    vocalAnalyzer.push (monoScratch.data(), n);
+    // ---- MIDI: held notes can steer Tune
+    for (const auto meta : midi)
+    {
+        const auto m = meta.getMessage();
+        if (m.isNoteOn())       heldNotes[(size_t) m.getNoteNumber()] = true;
+        else if (m.isNoteOff()) heldNotes[(size_t) m.getNoteNumber()] = false;
+        else if (m.isAllNotesOff() || m.isAllSoundOff()) heldNotes.fill (false);
+    }
+    {
+        int hm = 0;
+        for (int k = 0; k < 128; ++k) if (heldNotes[(size_t) k]) hm |= 1 << (k % 12);
+        heldMask.store (hm);
+    }
 
     // ---- per-block info
     ProcessInfo info;
+    info.trace = &trace;
+    if (auto* ph = getPlayHead())
+        if (auto pos = ph->getPosition())
+            info.transportPlaying = pos->getIsPlaying();
+
+    if (info.transportPlaying)   // analysers only listen while the song is actually running
+    {
+        keyDetector.push (monoScratch.data(), n);
+        vocalAnalyzer.push (monoScratch.data(), n);
+    }
+    {
+        int mask = 0;
+        for (int i = 0; i < 12; ++i) if (pNotes[(size_t) i]->load() > 0.5f) mask |= 1 << i;
+        const int hm = heldMask.load();
+        if (pTuneMidi != nullptr && pTuneMidi->load() > 0.5f && hm != 0) mask = hm;
+        info.noteMask = mask == 0 ? 0xFFF : mask;
+    }
     info.key = (int) pKey->load();
     info.scale = (int) pScale->load();
     info.tuneFactor  = pMTune->load() / 50.f;
@@ -217,19 +260,71 @@ void VocalystProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     juce::AudioBuffer<float> chainBuf (work.getArrayOfWritePointers(), 2, n);
     std::array<bool, kNumModules> nowActive {};
     int latency = 0;
+    const bool bypassed = pBypass->load() > 0.5f;
     for (int k = 0; k < audioCount; ++k)
     {
         const int idx = audioOrder[(size_t) k];
         if (idx < 0 || idx >= kNumModules) continue;
         auto& m = *modules[(size_t) idx];
         if (! m.isEnabled()) continue;
+        latency += m.latencySamples();          // the chain's latency is reported even while bypassed
+        if (bypassed) continue;
         nowActive[(size_t) idx] = true;
         if (! wasActive[(size_t) idx]) m.reset();
         m.process (chainBuf, info);
-        latency += m.latencySamples();
     }
     wasActive = nowActive;
     desiredLatency.store (latency);
+    const int reportedLatency = desiredLatency.load();
+
+    // ---- loudness match: measure dry vs processed (1 s exponential RMS, gated at -60 dBFS)
+    {
+        float dp = 0.f, wp = 0.f;
+        for (int i = 0; i < n; ++i)
+        {
+            const float d = 0.5f * (dry.getReadPointer (0)[i] + dry.getReadPointer (1)[i]);
+            const float w = 0.5f * (wl[i] + wr[i]);
+            dp += d * d; wp += w * w;
+        }
+        dp /= (float) n; wp /= (float) n;
+        if (dp > 1.0e-6f)
+        {
+            const float a = 1.f - std::exp (-(float) n / (float) currentSampleRate);
+            dryPow += a * (dp - dryPow);
+            wetPow += a * (wp - wetPow);
+        }
+        dryDb.store (dsp::gainToDb (std::sqrt (dryPow)));
+        wetDb.store (dsp::gainToDb (std::sqrt (wetPow)));
+        float target = 1.f;
+        if (pMatch->load() > 0.5f && dryPow > 1.0e-7f && wetPow > 1.0e-7f)
+            target = juce::jlimit (dsp::dbToGain (-12.f), dsp::dbToGain (12.f), std::sqrt (dryPow / wetPow));
+        const float a2 = 1.f - std::exp (-(float) n / (0.3f * (float) currentSampleRate));
+        matchGain += a2 * (target - matchGain);
+        matchGainDb.store (dsp::gainToDb (matchGain));
+    }
+
+    if (bypassed)
+    {
+        // keep the dry signal time-aligned with the latency the host compensates for
+        for (int ch = 0; ch < 2; ++ch)
+        {
+            auto* d = work.getWritePointer (ch);
+            const auto* src = dry.getReadPointer (ch);
+            for (int i = 0; i < n; ++i)
+            {
+                dryDelay[ch].push (src[i]);
+                d[i] = reportedLatency > 0 ? dryDelay[ch].read ((float) reportedLatency) : src[i];
+            }
+        }
+    }
+    else
+    {
+        for (int ch = 0; ch < 2; ++ch)
+        {
+            const auto* src = dry.getReadPointer (ch);
+            for (int i = 0; i < n; ++i) dryDelay[ch].push (src[i]);
+        }
+    }
 
     // ---- tone macro (tilt), mix, output
     const float t = pMTone->load() * 0.01f;
@@ -240,17 +335,18 @@ void VocalystProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     for (int i = 0; i < n; ++i)
     {
         float l = wl[i], r = wr[i];
-        if (useTilt) { l = tilt[0].process (l); r = tilt[1].process (r); }
+        if (useTilt && ! bypassed) { l = tilt[0].process (l); r = tilt[1].process (r); }
         const float mix = mixSm.getNextValue();
-        const float og = outGainSm.getNextValue();
-        l = (dl[i] + (l - dl[i]) * mix) * og;
-        r = (dr[i] + (r - dr[i]) * mix) * og;
+        const float og = outGainSm.getNextValue() * (bypassed ? 1.f : matchGain);
+        if (! bypassed) { l = dl[i] + (l - dl[i]) * mix; r = dr[i] + (r - dr[i]) * mix; }
+        l *= og; r *= og;
         if (! std::isfinite (l)) l = 0.f;
         if (! std::isfinite (r)) r = 0.f;
         wl[i] = l; wr[i] = r;
         opL = juce::jmax (opL, std::abs (l)); opR = juce::jmax (opR, std::abs (r));
     }
     outPeak[0].store (opL); outPeak[1].store (opR);
+    meterEngine.push (dry.getReadPointer (0), dry.getReadPointer (1), wl, wr, n);
 
     if (outCh == 1)
     {
@@ -271,6 +367,9 @@ void VocalystProcessor::timerCallback()
     const int want = desiredLatency.load();
     if (want != getLatencySamples())
         setLatencySamples (want);
+
+    if (maskDirty.exchange (false))
+        setNotesFromScale();
 
     if (isAutoKeyLinked())
     {
@@ -463,7 +562,34 @@ void VocalystProcessor::setKey (int key, int scale)
 {
     setParamValue (ids::key, (float) juce::jlimit (0, 11, key));
     setParamValue (ids::scale, (float) juce::jlimit (0, scales::kNumScales - 1, scale));
+    setNotesFromScale();
     listeners.call ([] (Listener& l) { l.keyChanged(); });
+}
+
+void VocalystProcessor::parameterChanged (const juce::String&, float)
+{
+    maskDirty.store (true);   // applied on the message thread by the timer
+}
+
+int VocalystProcessor::getNoteMask() const
+{
+    int mask = 0;
+    for (int i = 0; i < 12; ++i) if (pNotes[(size_t) i] != nullptr && pNotes[(size_t) i]->load() > 0.5f) mask |= 1 << i;
+    return mask;
+}
+
+void VocalystProcessor::setNoteMask (int mask12)
+{
+    for (int i = 0; i < 12; ++i)
+        if (auto* p = apvts.getParameter (ids::note (i)))
+            p->setValueNotifyingHost (((mask12 >> i) & 1) ? 1.f : 0.f);
+    listeners.call ([] (Listener& l) { l.keyChanged(); });
+}
+
+void VocalystProcessor::setNotesFromScale()
+{
+    maskDirty.store (false);
+    setNoteMask (scales::maskForKey (getKey(), getScale()));
 }
 
 bool VocalystProcessor::applySharedKey()
@@ -521,6 +647,7 @@ void VocalystProcessor::setStateInformation (const void* data, int sizeInBytes)
         newState.addChild (ui, -1, nullptr);
     }
     apvts.replaceState (newState);
+    maskDirty.store (false);
     uiState = apvts.state.getChildWithName ("ui");
     currentFactoryIndex = presets::indexOf (uiState.getProperty ("presetName").toString());
     stateToChain();

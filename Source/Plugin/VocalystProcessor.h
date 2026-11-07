@@ -5,6 +5,7 @@
 #include "../Core/KeyDetector.h"
 #include "../Core/VocalAnalyzer.h"
 #include "../Core/SharedKey.h"
+#include "../Core/MeterEngine.h"
 #include "../DSP/Module.h"
 #include "../DSP/DspUtil.h"
 #include "../Presets/Presets.h"
@@ -16,7 +17,8 @@ namespace vocalyst
 {
 
 class VocalystProcessor final : public juce::AudioProcessor,
-                            private juce::Timer
+                            private juce::Timer,
+                            private juce::AudioProcessorValueTreeState::Listener
 {
 public:
     VocalystProcessor();
@@ -31,7 +33,7 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override                  { return true; }
     const juce::String getName() const override      { return "Vocalyst"; }
-    bool acceptsMidi() const override                { return false; }
+    bool acceptsMidi() const override                { return true; }   // optional: held notes steer Tune
     bool producesMidi() const override               { return false; }
     bool isMidiEffect() const override               { return false; }
     double getTailLengthSeconds() const override     { return 4.0; }
@@ -92,6 +94,20 @@ public:
     int  getScale() const;
     void setKey (int key, int scale);
     KeyDetector& inputKeyDetector()                  { return keyDetector; }
+    int  getNoteMask() const;                         // absolute pitch classes Tune snaps to
+    void setNoteMask (int mask12);                    // custom note selection (message thread)
+    void setNotesFromScale();                         // rebuild the mask from key + scale
+    int  heldMidiMask() const                        { return heldMask.load(); }
+
+    //==========================================================================
+    // Meters / tuner feeds
+    MeterEngine& meters()                            { return meterEngine; }
+    PitchTrace&  pitchTrace()                        { return trace; }
+    float matchGainDbNow() const                     { return matchGainDb.load(); }
+    float dryLoudnessDb() const                      { return dryDb.load(); }
+    float wetLoudnessDb() const                      { return wetDb.load(); }
+    bool  isBypassed() const                         { return pBypass != nullptr && pBypass->load() > 0.5f; }
+    bool  isMatchOn() const                          { return pMatch != nullptr && pMatch->load() > 0.5f; }
     bool applySharedKey();                            // pull from Vocalyst Auto Key
     bool isAutoKeyLinked() const                     { return (bool) uiState.getProperty ("autoKeyLink", false); }
     void setAutoKeyLinked (bool b)                   { uiState.setProperty ("autoKeyLink", b, nullptr); }
@@ -115,6 +131,7 @@ public:
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
     void timerCallback() override;
+    void parameterChanged (const juce::String& id, float newValue) override;
     void publishOrder();           // uiOrder -> audio thread
     void chainToState();
     void stateToChain();
@@ -138,6 +155,15 @@ private:
     dsp::Tilt tilt[2];
     juce::SmoothedValue<float> inGainSm, outGainSm, mixSm;
     double currentSampleRate = 44100.0;
+    dsp::DelayLine dryDelay[2];
+
+    MeterEngine meterEngine;
+    PitchTrace  trace;
+    float dryPow = 0.f, wetPow = 0.f, matchGain = 1.f;
+    std::atomic<float> matchGainDb { 0.f }, dryDb { -100.f }, wetDb { -100.f };
+    std::array<bool, 128> heldNotes {};
+    std::atomic<int> heldMask { 0 };
+    std::atomic<bool> maskDirty { false };
 
     KeyDetector keyDetector;
     VocalAnalyzer vocalAnalyzer;
@@ -155,6 +181,8 @@ private:
     std::atomic<float>* pKey = nullptr;    std::atomic<float>* pScale = nullptr;
     std::atomic<float>* pMTune = nullptr;  std::atomic<float>* pMClean = nullptr; std::atomic<float>* pMTone = nullptr;
     std::atomic<float>* pMSpace = nullptr; std::atomic<float>* pMWidth = nullptr; std::atomic<float>* pMDrive = nullptr;
+    std::atomic<float>* pBypass = nullptr; std::atomic<float>* pMatch = nullptr; std::atomic<float>* pTuneMidi = nullptr;
+    std::array<std::atomic<float>*, 12> pNotes {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VocalystProcessor)
 };

@@ -39,6 +39,16 @@ FooterBar::FooterBar (VocalystProcessor& p)
     hint.setJustificationType (juce::Justification::centred);
     hint.setText ("Raw to finished vocal in seconds. Pick a preset, set the key, press Analyze.", juce::dontSendNotification);
     addAndMakeVisible (hint);
+    for (auto* b : { &bypassBtn, &matchBtn }) { b->setClickingTogglesState (true); addAndMakeVisible (b); }
+    bypassBtn.setColour (juce::TextButton::buttonOnColourId, colours::danger());
+    if (auto* bp = processor.apvts.getParameter (ids::bypass)) bypassAtt = std::make_unique<juce::ButtonParameterAttachment> (*bp, bypassBtn);
+    if (auto* mp = processor.apvts.getParameter (ids::match))  matchAtt  = std::make_unique<juce::ButtonParameterAttachment> (*mp, matchBtn);
+    addAndMakeVisible (metersBtn);
+    metersBtn.onClick = [this] { metersBtn.setActive (! metersBtn.isActive()); if (onMetersToggled) onMetersToggled (metersBtn.isActive()); };
+    matchLabel.setFont (font (10.5f));
+    matchLabel.setColour (juce::Label::textColourId, colours::textDim());
+    matchLabel.setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (matchLabel);
     timerCallback();
     startTimerHz (30);
 }
@@ -49,6 +59,8 @@ void FooterBar::timerCallback()
     outMeter.setLevels (processor.outputLevel (0), processor.outputLevel (1));
     const int lat = (int) processor.currentLatencySamples();
     latencyLabel.setText (lat > 0 ? "Latency " + juce::String (lat) + " smp" : "Zero latency", juce::dontSendNotification);
+    const float mg = processor.matchGainDbNow();
+    matchLabel.setText (processor.isMatchOn() ? (mg >= 0.f ? "+" : "") + juce::String (mg, 1) + " dB" : "A/B at equal loudness", juce::dontSendNotification);
 }
 
 void FooterBar::paint (juce::Graphics& g)
@@ -64,6 +76,13 @@ void FooterBar::resized()
     inKnob.setBounds (r.removeFromLeft (70));
     inMeter.setBounds (r.removeFromLeft (110).reduced (6, 22));
     r.removeFromLeft (10);
+    auto ctl = r.removeFromLeft (250);
+    auto row1 = ctl.removeFromTop (ctl.getHeight() / 2).reduced (0, 6);
+    bypassBtn.setBounds (row1.removeFromLeft (80)); row1.removeFromLeft (6);
+    matchBtn.setBounds (row1.removeFromLeft (76)); row1.removeFromLeft (6);
+    metersBtn.setBounds (row1.removeFromLeft (80));
+    matchLabel.setBounds (ctl.withTrimmedLeft (86).withWidth (76).reduced (0, 4));
+    r.removeFromLeft (6);
     latencyLabel.setBounds (r.removeFromRight (110));
     outMeter.setBounds (r.removeFromRight (110).reduced (6, 22));
     outKnob.setBounds (r.removeFromRight (70));

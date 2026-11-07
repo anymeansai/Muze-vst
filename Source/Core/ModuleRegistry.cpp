@@ -20,9 +20,14 @@ static std::vector<ModuleSpec> buildRegistry()
 
     m.push_back ({ ModuleId::Tune, "tune", "Tune", C::Clean,
         "Real-time pitch correction locked to the song key.",
-        { { "amount",   "Amount",   0.f, 100.f, 100.f, 1.f,  "%",  0, nullptr },
-          { "speed",    "Speed",    0.f, 400.f, 25.f,  0.5f, "ms", 0, nullptr },
-          { "humanize", "Humanize", 0.f, 100.f, 0.f,   1.f,  "%",  0, nullptr } } });
+        { { "amount",    "Amount",       0.f,   100.f, 100.f, 1.f,  "%",  0, nullptr },
+          { "speed",     "Retune Speed", 0.f,   400.f, 25.f,  0.5f, "ms", 0, nullptr },
+          { "humanize",  "Humanize",     0.f,   100.f, 0.f,   1.f,  "%",  0, nullptr },
+          { "flex",      "Flex-Tune",    0.f,   100.f, 0.f,   1.f,  "ct", 0, nullptr },
+          { "vibrato",   "Vibrato",      0.f,   200.f, 100.f, 1.f,  "%",  0, nullptr },
+          { "transpose", "Transpose",    -12.f, 12.f,  0.f,   1.f,  "st", 1, nullptr },
+          { "range",     "Input Range",  0.f,   4.f,   0.f,   1.f,  "",   1, "Auto,Soprano,Alto / Tenor,Low Male,Bass" },
+          { "midi",      "MIDI Notes",   0.f,   1.f,   0.f,   1.f,  "",   1, "Off,On" } } });
 
     m.push_back ({ ModuleId::LowCut, "lowcut", "Low Cut", C::Clean,
         "High-pass filter that clears rumble and mud below the voice.",

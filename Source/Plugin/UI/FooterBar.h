@@ -18,6 +18,8 @@ class FooterBar : public juce::Component, private juce::Timer
 {
 public:
     explicit FooterBar (VocalystProcessor&);
+    std::function<void (bool)> onMetersToggled;
+    void setMetersActive (bool on) { metersBtn.setActive (on); }
     void paint (juce::Graphics&) override;
     void resized() override;
 private:
@@ -25,7 +27,9 @@ private:
     VocalystProcessor& processor;
     Knob inKnob, mixKnob, outKnob;
     LevelMeter inMeter, outMeter;
-    juce::Label latencyLabel, hint;
+    juce::Label latencyLabel, hint, matchLabel;
+    PillButton bypassBtn { "BYPASS" }, matchBtn { "MATCH" }, metersBtn { "METERS" };
+    std::unique_ptr<juce::ButtonParameterAttachment> bypassAtt, matchAtt;
 };
 
 } // namespace vocalyst::ui

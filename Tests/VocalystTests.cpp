@@ -4,6 +4,7 @@
 #include "../Source/Plugin/VocalystProcessor.h"
 #include "../Source/DSP/PitchDetector.h"
 #include "../Source/Core/KeyDetector.h"
+#include "../Source/Core/MeterEngine.h"
 #include <juce_events/juce_events.h>
 #include <iostream>
 #include <cmath>
@@ -311,6 +312,89 @@ static void testAnalyzer (VocalystProcessor& p)
     juce::ignoreUnused (before);
 }
 
+static void testNewFeatures (VocalystProcessor& p)
+{
+    std::cout << "Analyzer gating, note mask, bypass, loudness match, MIDI\n";
+    const double sr = 44100.0; const int block = 512;
+    p.prepareToPlay (sr, block);
+    p.setChainOrder ({ ModuleId::Tune });
+    juce::AudioBuffer<float> buf (2, block);
+    juce::MidiBuffer midi;
+
+    // analyzer must not count silence
+    p.analyzer().reset();
+    for (int b = 0; b < 100; ++b) { buf.clear(); p.processBlock (buf, midi); }
+    CHECK (p.analyzer().snapshot().seconds < 0.01f, "silence adds no analysed seconds");
+    double phase = 0.0;
+    for (int b = 0; b < 100; ++b) { fillSine (buf, 220.0, sr, phase, 0.3f); p.processBlock (buf, midi); }
+    const float secs = p.analyzer().snapshot().seconds;
+    CHECK (secs > 0.9f && secs < 1.4f, "signal adds analysed seconds (" + juce::String (secs, 2) + " s)");
+
+    // custom note mask: only A allowed -> 233 Hz (A#3) is pulled down to 220 Hz
+    p.apvts.getParameter ("tune_on")->setValueNotifyingHost (1.f);
+    p.apvts.getParameter ("tune_amount")->setValueNotifyingHost (1.f);
+    p.apvts.getParameter ("tune_speed")->setValueNotifyingHost (0.f);
+    p.setNoteMask (1 << 9);
+    CHECK (p.getNoteMask() == (1 << 9), "note mask stored in parameters");
+    std::vector<float> out;
+    for (int b = 0; b < 400; ++b) { fillSine (buf, 233.08, sr, phase, 0.4f); p.processBlock (buf, midi); for (int i = 0; i < block; ++i) out.push_back (buf.getReadPointer (0)[i]); }
+    const float f = measurePitch (out, sr, (int) sr);
+    CHECK (std::abs (f - 220.f) < 2.5f, "mask {A}: 233 Hz corrected to " + juce::String (f, 2) + " Hz");
+    p.setKey (0, scales::Chromatic);
+    CHECK (p.getNoteMask() == 0xFFF, "selecting a scale rebuilds the mask");
+
+    // transpose +12 moves a 220 Hz note to 440 Hz
+    p.apvts.getParameter ("tune_transpose")->setValueNotifyingHost (p.apvts.getParameter ("tune_transpose")->convertTo0to1 (12.f));
+    out.clear();
+    for (int b = 0; b < 400; ++b) { fillSine (buf, 220.0, sr, phase, 0.4f); p.processBlock (buf, midi); for (int i = 0; i < block; ++i) out.push_back (buf.getReadPointer (0)[i]); }
+    const float ft = measurePitch (out, sr, (int) sr);
+    CHECK (std::abs (ft - 440.f) < 6.f, "transpose +12: 220 Hz -> " + juce::String (ft, 1) + " Hz");
+    p.apvts.getParameter ("tune_transpose")->setValueNotifyingHost (p.apvts.getParameter ("tune_transpose")->convertTo0to1 (0.f));
+
+    // MIDI held notes are tracked
+    midi.addEvent (juce::MidiMessage::noteOn (1, 69, (juce::uint8) 100), 0);
+    buf.clear(); p.processBlock (buf, midi); midi.clear();
+    CHECK (p.heldMidiMask() == (1 << 9), "held MIDI note A reported in the MIDI mask");
+    midi.addEvent (juce::MidiMessage::noteOff (1, 69), 0);
+    p.processBlock (buf, midi); midi.clear();
+    CHECK (p.heldMidiMask() == 0, "note off clears the MIDI mask");
+
+    // bypass passes the input through untouched (no latency when Tune is off)
+    p.setChainOrder ({ ModuleId::Compressor });
+    p.prepareToPlay (sr, block);
+    p.apvts.getParameter ("comp_makeup")->setValueNotifyingHost (p.apvts.getParameter ("comp_makeup")->convertTo0to1 (12.f));
+    p.apvts.getParameter (ids::bypass)->setValueNotifyingHost (1.f);
+    float maxDiff = 0.f;
+    for (int b = 0; b < 50; ++b)
+    {
+        fillSine (buf, 220.0, sr, phase, 0.3f);
+        juce::AudioBuffer<float> copy; copy.makeCopyOf (buf);
+        p.processBlock (buf, midi);
+        if (b > 10) for (int i = 0; i < block; ++i) maxDiff = juce::jmax (maxDiff, std::abs (buf.getReadPointer (0)[i] - copy.getReadPointer (0)[i]));
+    }
+    CHECK (maxDiff < 1.0e-4f, "bypass passes the input through (max diff " + juce::String (maxDiff, 6) + ")");
+    p.apvts.getParameter (ids::bypass)->setValueNotifyingHost (0.f);
+
+    // loudness match pulls a +12 dB chain back to the input level
+    p.apvts.getParameter (ids::match)->setValueNotifyingHost (1.f);
+    float inRms = 0.f, outRms = 0.f;
+    for (int b = 0; b < 400; ++b)
+    {
+        fillSine (buf, 220.0, sr, phase, 0.3f);
+        p.processBlock (buf, midi);
+        if (b > 300) { inRms += 0.3f * 0.3f * 0.5f; outRms += buf.getRMSLevel (0, 0, block) * buf.getRMSLevel (0, 0, block); }
+    }
+    const float diffDb = 10.f * std::log10 (outRms / inRms);
+    CHECK (std::abs (diffDb) < 1.5f, "loudness match keeps output within 1.5 dB of input (" + juce::String (diffDb, 2) + " dB)");
+    p.apvts.getParameter (ids::match)->setValueNotifyingHost (0.f);
+    p.apvts.getParameter ("comp_makeup")->setValueNotifyingHost (p.apvts.getParameter ("comp_makeup")->getDefaultValue());
+
+    // meters produce a spectrum
+    MeterEngine::Snapshot snap;
+    p.meters().getSnapshot (snap);
+    CHECK (snap.valid && snap.outDb[(size_t) std::lround (220.0 * MeterEngine::fftSize / sr)] > -30.f, "spectrum analyzer shows the 220 Hz tone");
+}
+
 static void testState()
 {
     std::cout << "State\n";
@@ -345,6 +429,7 @@ int main()
         testEachModule (p);
         testTune (p);
         testAnalyzer (p);
+        testNewFeatures (p);
     }
     testPitchDetector();
     testKeyDetector();

@@ -20,6 +20,26 @@ struct ProcessInfo
     float spaceFactor = 1.f;    // scales reverb / delay / slap mix
     float widthFactor = 1.f;    // scales doubler / widener / chorus
     float driveFactor = 1.f;    // scales saturation / distortion / exciter
+    int   noteMask = 0xFFF;     // absolute pitch classes Tune may snap to (bit n = pitch class n)
+    bool  transportPlaying = true;
+    struct PitchTrace* trace = nullptr;
+};
+
+// Rolling record of detected vs corrected pitch, written by Tune and drawn by the tuner page.
+struct PitchTrace
+{
+    static constexpr int size = 512;
+    PitchTrace() { for (int i = 0; i < size; ++i) { inMidi[(size_t) i].store (0.f); outMidi[(size_t) i].store (0.f); } }
+    void push (float in, float out)
+    {
+        const int h = head.load();
+        inMidi[(size_t) h].store (in); outMidi[(size_t) h].store (out);
+        head.store ((h + 1) % size);
+        inNow.store (in); outNow.store (out);
+    }
+    std::array<std::atomic<float>, size> inMidi, outMidi;   // 0 = unvoiced
+    std::atomic<int>   head { 0 };
+    std::atomic<float> inNow { 0.f }, outNow { 0.f }, inHz { 0.f };
 };
 
 // Base class for all 27 effect modules. Always stereo (2 channels).

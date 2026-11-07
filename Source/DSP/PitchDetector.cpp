@@ -13,16 +13,23 @@ void PitchDetector::prepare (double sampleRate)
     window = 1024;
     half   = window / 2;
     hop    = 256;
-    tauMin = juce::jmax (2, (int) (srInternal / 1200.0));   // ~1.2 kHz upper bound
-    tauMax = juce::jmin (half - 1, (int) (srInternal / 55.0)); // ~55 Hz lower bound
+    setRange (55.f, 1200.f);
 
     ringSize = 4096;
     ringMask = ringSize - 1;
     ring.assign ((size_t) ringSize, 0.f);
     frame.assign ((size_t) window, 0.f);
-    diff.assign ((size_t) (tauMax + 1), 0.f);
+    diff.assign ((size_t) half, 0.f);
     antiAlias.set ((float) (srInternal * 0.42), 0.6f, sr);
     reset();
+}
+
+void PitchDetector::setRange (float minHz, float maxHz)
+{
+    tauMin = juce::jmax (2, (int) (srInternal / juce::jmax (100.0, (double) maxHz)));
+    tauMax = juce::jmin (half - 1, (int) (srInternal / juce::jmax (30.0, (double) minHz)));
+    if (tauMax <= tauMin + 2) tauMax = juce::jmin (half - 1, tauMin + 3);
+    if ((int) diff.size() < tauMax + 1) diff.assign ((size_t) (tauMax + 1), 0.f);
 }
 
 void PitchDetector::reset()

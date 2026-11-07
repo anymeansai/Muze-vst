@@ -38,7 +38,7 @@ void AnalyzePanel::refresh()
 void AnalyzePanel::paint (juce::Graphics& g)
 {
     g.fillAll (colours::bg().withAlpha (0.82f));
-    auto card = getLocalBounds().withSizeKeepingCentre (juce::jmin (getWidth() - 40, 680), juce::jmin (getHeight() - 30, 470));
+    auto card = getLocalBounds().withSizeKeepingCentre (juce::jmin (getWidth() - 40, 820), juce::jmin (getHeight() - 24, 540));
     g.setColour (colours::panel());
     g.fillRoundedRectangle (card.toFloat(), 12.f);
     g.setColour (colours::accent());
@@ -50,7 +50,7 @@ void AnalyzePanel::paint (juce::Graphics& g)
     g.drawText ("ANALYZE", r.removeFromTop (28), juce::Justification::centredLeft);
     g.setColour (colours::textDim());
     g.setFont (font (12.5f));
-    g.drawText ("Play the vocal through Vocalyst. The analyzer listens to the raw input and proposes a starting mix.", r.removeFromTop (20), juce::Justification::centredLeft);
+    g.drawText ("Play the vocal. The analyzer measures the raw input while the song runs and proposes a starting mix, with the reasoning for each move.", r.removeFromTop (20), juce::Justification::centredLeft);
     r.removeFromTop (10);
 
     // stats grid
@@ -61,7 +61,8 @@ void AnalyzePanel::paint (juce::Graphics& g)
     cells.push_back ({ "LEVEL (RMS)", stats.valid ? juce::String ((int) stats.rmsDb) + " dB" : "--" });
     cells.push_back ({ "PEAK", stats.valid ? juce::String ((int) stats.peakDb) + " dB" : "--" });
     cells.push_back ({ "NOISE FLOOR", stats.valid && stats.noiseFloorDb > -99.f ? juce::String ((int) stats.noiseFloorDb) + " dB" : "--" });
-    cells.push_back ({ "DYNAMICS", stats.valid ? juce::String ((int) stats.crestDb) + " dB" : "--" });
+    cells.push_back ({ "LOUD / QUIET", stats.valid ? juce::String ((int) stats.loudP90) + " / " + juce::String ((int) stats.loudP10) + " dB" : "--" });
+    cells.push_back ({ "TILT", stats.valid ? juce::String (stats.tiltDbPerOct, 1) + " dB/oct" : "--" });
     cells.push_back ({ "SIBILANCE", stats.valid ? juce::String ((int) (stats.sibilanceRatio * 100.f)) + " %" : "--" });
     const int cw = grid.getWidth() / (int) cells.size();
     for (auto& c : cells)
@@ -91,20 +92,24 @@ void AnalyzePanel::paint (juce::Graphics& g)
     g.drawText ("SUGGESTIONS", r.removeFromTop (16), juce::Justification::centredLeft);
     for (auto& s : suggestions)
     {
-        auto row = r.removeFromTop (34);
-        if (row.getHeight() < 30) break;
+        auto row = r.removeFromTop (50);
+        if (row.getHeight() < 40) break;
         g.setColour (colours::ok());
-        g.fillEllipse (row.removeFromLeft (14).withSizeKeepingCentre (8, 8).toFloat());
+        g.fillEllipse (row.removeFromLeft (14).withHeight (18).withSizeKeepingCentre (8, 8).toFloat());
         row.removeFromLeft (8);
+        auto titleArea = row.removeFromLeft (92);
         g.setColour (colours::text());
-        g.setFont (font (13.f));
-        g.drawFittedText (s.text, row, juce::Justification::centredLeft, 2);
+        g.setFont (font (12.5f, true));
+        g.drawText (s.title, titleArea.withTrimmedTop (2), juce::Justification::topLeft);
+        g.setColour (colours::textDim());
+        g.setFont (font (12.f));
+        g.drawFittedText (s.text, row.reduced (0, 1), juce::Justification::topLeft, 3);
     }
 }
 
 void AnalyzePanel::resized()
 {
-    auto card = getLocalBounds().withSizeKeepingCentre (juce::jmin (getWidth() - 40, 680), juce::jmin (getHeight() - 30, 470));
+    auto card = getLocalBounds().withSizeKeepingCentre (juce::jmin (getWidth() - 40, 820), juce::jmin (getHeight() - 24, 540));
     auto row = card.reduced (24, 18).removeFromBottom (34);
     closeBtn.setBounds (row.removeFromRight (90));
     row.removeFromRight (8);

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Vocalyst VERSION 1.0.0 LANGUAGES C CXX)
+project(Vocalyst VERSION 1.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -54,6 +54,7 @@ set(VOCALYST_CORE_SOURCES
     Source/Core/KeyDetector.cpp
     Source/Core/VocalAnalyzer.cpp
     Source/Core/SharedKey.cpp
+    Source/Core/MeterEngine.cpp
     Source/Presets/Presets.cpp
     Source/Presets/PresetData.cpp
     Source/DSP/PitchDetector.cpp
@@ -92,7 +93,7 @@ juce_add_plugin(Vocalyst
     PLUGIN_CODE                 Vcl1
     FORMATS                     ${VOCALYST_FORMATS}
     IS_SYNTH                    FALSE
-    NEEDS_MIDI_INPUT            FALSE
+    NEEDS_MIDI_INPUT            TRUE
     NEEDS_MIDI_OUTPUT           FALSE
     IS_MIDI_EFFECT              FALSE
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
@@ -113,7 +114,9 @@ target_sources(Vocalyst PRIVATE
     Source/Plugin/UI/MacroPanel.cpp
     Source/Plugin/UI/MixView.cpp
     Source/Plugin/UI/CommunityPanel.cpp
-    Source/Plugin/UI/AnalyzePanel.cpp)
+    Source/Plugin/UI/AnalyzePanel.cpp
+    Source/Plugin/UI/MeterStrip.cpp
+    Source/Plugin/UI/TuneView.cpp)
 
 target_link_libraries(Vocalyst PRIVATE VocalystCore juce::juce_recommended_lto_flags)
 
@@ -163,7 +166,9 @@ if (VOCALYST_BUILD_TESTS)
         Source/Plugin/UI/MacroPanel.cpp
         Source/Plugin/UI/MixView.cpp
         Source/Plugin/UI/CommunityPanel.cpp
-        Source/Plugin/UI/AnalyzePanel.cpp)
+        Source/Plugin/UI/AnalyzePanel.cpp
+    Source/Plugin/UI/MeterStrip.cpp
+    Source/Plugin/UI/TuneView.cpp)
     target_compile_definitions(VocalystTests PRIVATE
         VOCALYST_STANDALONE_TEST=1
         JucePlugin_Name="Vocalyst"
@@ -172,7 +177,7 @@ if (VOCALYST_BUILD_TESTS)
         JucePlugin_IsMidiEffect=0
         JucePlugin_IsSynth=0
         JucePlugin_EditorRequiresKeyboardFocus=0
-        JucePlugin_VersionString="1.0.0")
+        JucePlugin_VersionString="1.1.0")
     target_link_libraries(VocalystTests PRIVATE VocalystCore)
     enable_testing()
     add_test(NAME VocalystTests COMMAND VocalystTests)
@@ -197,6 +202,8 @@ if (VOCALYST_BUILD_SCREENSHOT)
         Source/Plugin/UI/MixView.cpp
         Source/Plugin/UI/CommunityPanel.cpp
         Source/Plugin/UI/AnalyzePanel.cpp
+        Source/Plugin/UI/MeterStrip.cpp
+        Source/Plugin/UI/TuneView.cpp
         Source/AutoKey/AutoKeyProcessor.cpp
         Source/AutoKey/AutoKeyEditor.cpp)
     target_compile_definitions(VocalystScreenshot PRIVATE
@@ -207,6 +214,6 @@ if (VOCALYST_BUILD_SCREENSHOT)
         JucePlugin_IsMidiEffect=0
         JucePlugin_IsSynth=0
         JucePlugin_EditorRequiresKeyboardFocus=0
-        JucePlugin_VersionString="1.0.0")
+        JucePlugin_VersionString="1.1.0")
     target_link_libraries(VocalystScreenshot PRIVATE VocalystCore)
 endif()

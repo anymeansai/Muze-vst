@@ -2,6 +2,7 @@
 #include "ChainStrip.h"
 #include "ModulePanel.h"
 #include "MacroPanel.h"
+#include "MeterStrip.h"
 
 namespace vocalyst::ui
 {
@@ -12,6 +13,7 @@ class MixView : public juce::Component
 public:
     explicit MixView (VocalystProcessor&);
     void refreshMode();
+    void setMetersVisible (bool on);
     void resized() override;
     void paint (juce::Graphics&) override;
 private:
@@ -21,6 +23,8 @@ private:
     ChainStrip chain;
     ModulePanel modulePanel;
     MacroPanel macros;
+    MeterStrip meterStrip;
+    bool metersVisible = false;
 };
 
 } // namespace vocalyst::ui

@@ -66,6 +66,9 @@ namespace ids
     inline constexpr const char* macroSpace = "macro_space";
     inline constexpr const char* macroWidth = "macro_width";
     inline constexpr const char* macroDrive = "macro_drive";
+    inline constexpr const char* bypass     = "bypass";
+    inline constexpr const char* match      = "match";
+    inline juce::String note (int pitchClass) { return "note_" + juce::String (pitchClass); }   // note_0 .. note_11
 }
 
 } // namespace vocalyst

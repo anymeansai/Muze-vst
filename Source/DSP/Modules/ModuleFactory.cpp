@@ -58,21 +58,36 @@ public:
         detector.prepare (sr);
         shifter.prepare (sr, 2);
         shifter.setNominalWindowMs (40.f);
+        lastRange = -1;
         reset();
     }
     void reset() override
     {
         detector.reset(); shifter.reset();
-        correction = targetCorrection = 0.f; stableTime = 0.f; silentTime = 0.f; lastTarget = -1;
+        correction = targetCorrection = 0.f; vibOffset = 0.f; midiSlow = 0.f;
+        stableTime = 0.f; silentTime = 1.f; lastTarget = -1; voiced = false;
     }
     int latencySamples() const override { return shifter.latencySamples(); }
 
     void process (juce::AudioBuffer<float>& b, const ProcessInfo& info) override
     {
-        const float amount   = juce::jlimit (0.f, 1.f, pct (p (0)) * info.tuneFactor);
-        const float speedMs  = p (1) / juce::jmax (0.25f, info.tuneFactor);
-        const float humanize = pct (p (2));
-        const float hopSec   = (float) detector.hopSamples() / (float) sr;
+        const float amount    = juce::jlimit (0.f, 1.f, pct (p (0)) * info.tuneFactor);
+        const float speedMs   = p (1) / juce::jmax (0.25f, info.tuneFactor);
+        const float humanize  = pct (p (2));
+        const float flexCents = p (3);
+        const float vibrato   = p (4) * 0.01f;
+        const float transpose = std::round (p (5));
+        const int   range     = (int) std::round (p (6));
+        const float hopSec    = (float) detector.hopSamples() / (float) sr;
+
+        if (range != lastRange)
+        {
+            static const float lo[5] = { 55.f, 150.f, 100.f, 60.f, 40.f };
+            static const float hi[5] = { 1200.f, 1400.f, 900.f, 500.f, 350.f };
+            const int r = juce::jlimit (0, 4, range);
+            detector.setRange (lo[r], hi[r]);
+            lastRange = range;
+        }
 
         auto* L = b.getWritePointer (0); auto* R = b.getWritePointer (1);
         const int n = b.getNumSamples();
@@ -84,36 +99,46 @@ public:
                 const float f = detector.frequencyHz();
                 if (f > 0.f && detector.confidence() > 0.55f)
                 {
-                    silentTime = 0.f;
-                    const float midi   = hzToMidi (f);
-                    const int   target = scales::nearestScaleNote (midi, info.key, info.scale);
+                    const float midi = hzToMidi (f);
+                    if (! voiced || silentTime > 0.2f) midiSlow = midi;
+                    voiced = true; silentTime = 0.f;
+                    midiSlow += 0.3f * (midi - midiSlow);                 // ~70 ms trend of the sung pitch
+                    const int   target = scales::nearestNoteInMask (midi, info.noteMask);
+                    const float devCents = std::abs ((float) target - midi) * 100.f;
                     stableTime = (target == lastTarget) ? stableTime + hopSec : 0.f;
                     lastTarget = target;
-                    targetCorrection = ((float) target - midi) * amount;
+                    const bool leaveIt = flexCents > 0.f && devCents > flexCents;   // Flex-Tune: far-off notes stay expressive
+                    targetCorrection = leaveIt ? 0.f : ((float) target - midi) * amount;
+                    vibOffset = (vibrato - 1.f) * (midi - midiSlow);                 // natural vibrato scaling
                     shifter.setPeriodHint ((float) sr / f);
+                    if (info.trace != nullptr)
+                    {
+                        info.trace->inHz.store (f);
+                        info.trace->push (midi, midi + correction + vibOffset + transpose);
+                    }
                 }
                 else
                 {
                     silentTime += hopSec;
-                    if (silentTime > 0.5f) { targetCorrection = 0.f; stableTime = 0.f; lastTarget = -1; }
+                    if (silentTime > 0.5f) { targetCorrection = 0.f; vibOffset = 0.f; stableTime = 0.f; lastTarget = -1; voiced = false; }
+                    if (info.trace != nullptr) { info.trace->inHz.store (0.f); info.trace->push (0.f, 0.f); }
                 }
                 const float effSpeed = speedMs * (1.f + humanize * 4.f * juce::jmin (stableTime, 1.f));
                 coeff = msToCoeff (effSpeed, sr);
             }
             correction += (1.f - coeff) * (targetCorrection - correction);
-            shifter.setRatio (std::pow (2.f, correction / 12.f));
+            shifter.setRatio (std::pow (2.f, (correction + vibOffset + transpose) / 12.f));
             float frame[2] { L[i], R[i] };
             shifter.processFrame (frame, frame, 2);
             L[i] = frame[0]; R[i] = frame[1];
         }
     }
-    // for the UI
-    float detectedHz() const { return detector.frequencyHz(); }
 private:
     double sr = 44100.0;
     PitchDetector detector; PitchShifter shifter;
-    float correction = 0.f, targetCorrection = 0.f, coeff = 0.f, stableTime = 0.f, silentTime = 0.f;
-    int lastTarget = -1;
+    float correction = 0.f, targetCorrection = 0.f, vibOffset = 0.f, midiSlow = 0.f, coeff = 0.f, stableTime = 0.f, silentTime = 1.f;
+    int lastTarget = -1, lastRange = -1;
+    bool voiced = false;
 };
 
 //==============================================================================

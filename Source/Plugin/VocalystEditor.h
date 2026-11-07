@@ -7,6 +7,7 @@
 #include "UI/MixView.h"
 #include "UI/CommunityPanel.h"
 #include "UI/AnalyzePanel.h"
+#include "UI/TuneView.h"
 
 namespace vocalyst
 {
@@ -21,8 +22,9 @@ public:
     void showTab (int tab);
     void setSimpleMode (bool simple);
     void openAnalyze() { analyze.open(); }
+    void setMetersVisible (bool on) { footer.setMetersActive (on); mixView.setMetersVisible (on); }
 
-    static constexpr int defaultWidth = 1120, defaultHeight = 660;
+    static constexpr int defaultWidth = 1160, defaultHeight = 680;
 
 private:
     VocalystProcessor& vocalystProcessor;
@@ -31,6 +33,7 @@ private:
     ui::FooterBar footer;
     ui::PresetBrowserPanel presetsPanel;
     ui::MixView mixView;
+    ui::TuneView tuneView;
     ui::CommunityPanel community;
     ui::AnalyzePanel analyze;
     juce::TooltipWindow tooltips { this, 600 };

@@ -28,6 +28,7 @@ HeaderBar::HeaderBar (VocalystProcessor& p) : processor (p)
     };
     setupTab (tabPresets, Presets);
     setupTab (tabMix, Mix);
+    setupTab (tabTune, Tune);
     setupTab (tabCommunity, Community);
 
     keyLabel.setText ("KEY", juce::dontSendNotification);
@@ -64,6 +65,7 @@ void HeaderBar::setTab (int tab)
     currentTab = tab;
     tabPresets.setActive (tab == Presets);
     tabMix.setActive (tab == Mix);
+    tabTune.setActive (tab == Tune);
     tabCommunity.setActive (tab == Community);
 }
 
@@ -163,10 +165,11 @@ void HeaderBar::resized()
     r.removeFromRight (10);
 
     // tabs centred in the remaining space
-    auto tabs = r.withSizeKeepingCentre (juce::jmin (r.getWidth() - 12, 300), r.getHeight()).reduced (0, 6);
-    const int w = tabs.getWidth() / 3;
+    auto tabs = r.withSizeKeepingCentre (juce::jmin (r.getWidth() - 12, 372), r.getHeight()).reduced (0, 6);
+    const int w = tabs.getWidth() / 4;
     tabPresets.setBounds (tabs.removeFromLeft (w).reduced (2, 0));
     tabMix.setBounds (tabs.removeFromLeft (w).reduced (2, 0));
+    tabTune.setBounds (tabs.removeFromLeft (w).reduced (2, 0));
     tabCommunity.setBounds (tabs.reduced (2, 0));
 }
 

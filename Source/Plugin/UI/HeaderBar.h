@@ -10,7 +10,7 @@ class HeaderBar : public juce::Component,
                   private juce::Timer
 {
 public:
-    enum Tab { Presets = 0, Mix = 1, Community = 2 };
+    enum Tab { Presets = 0, Mix = 1, Tune = 2, Community = 3 };
 
     explicit HeaderBar (VocalystProcessor&);
     ~HeaderBar() override;
@@ -32,7 +32,7 @@ private:
     VocalystProcessor& processor;
     juce::TextButton prevBtn { "<" }, nextBtn { ">" };
     juce::Label presetName, presetMeta;
-    PillButton tabPresets { "PRESETS" }, tabMix { "MIX" }, tabCommunity { "COMMUNITY" };
+    PillButton tabPresets { "PRESETS" }, tabMix { "MIX" }, tabTune { "TUNE" }, tabCommunity { "COMMUNITY" };
     juce::Label keyLabel;
     juce::ComboBox keyBox, scaleBox;
     std::unique_ptr<juce::ComboBoxParameterAttachment> keyAtt, scaleAtt;

@@ -39,15 +39,31 @@ bool noteInScale (int midiNote, int key, int scaleIndex)
     return (scaleMask (scaleIndex) >> rel) & 1;
 }
 
+int maskForKey (int key, int scaleIndex)
+{
+    const int m = scaleMask (scaleIndex);
+    int out = 0;
+    for (int i = 0; i < 12; ++i)
+        if ((m >> i) & 1)
+            out |= 1 << (((i + key) % 12 + 12) % 12);
+    return out;
+}
+
 int nearestScaleNote (float midi, int key, int scaleIndex)
 {
+    return nearestNoteInMask (midi, maskForKey (key, scaleIndex));
+}
+
+int nearestNoteInMask (float midi, int mask12)
+{
+    if ((mask12 & 0xFFF) == 0) mask12 = 0xFFF;
     const int base = (int) std::lround (midi);
     int best = base;
     float bestDist = 1.0e9f;
     for (int d = -6; d <= 6; ++d)
     {
         const int n = base + d;
-        if (! noteInScale (n, key, scaleIndex))
+        if (! ((mask12 >> ((n % 12 + 12) % 12)) & 1))
             continue;
         const float dist = std::abs ((float) n - midi);
         if (dist < bestDist - 1.0e-4f || (std::abs (dist - bestDist) < 1.0e-4f && n < best))

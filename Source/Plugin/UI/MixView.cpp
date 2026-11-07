@@ -3,8 +3,9 @@
 namespace vocalyst::ui
 {
 
-MixView::MixView (VocalystProcessor& p) : processor (p), chain (p), modulePanel (p), macros (p)
+MixView::MixView (VocalystProcessor& p) : processor (p), chain (p), modulePanel (p), macros (p), meterStrip (p)
 {
+    addChildComponent (meterStrip);
     addAndMakeVisible (modeSimple);
     addAndMakeVisible (modeAdvanced);
     modeSimple.onClick   = [this] { processor.setSimpleMode (true);  refreshMode(); };
@@ -20,6 +21,13 @@ MixView::MixView (VocalystProcessor& p) : processor (p), chain (p), modulePanel 
     if (sel >= 0 && sel < kNumModules && processor.isInChain ((ModuleId) sel)) { chain.setSelected ((ModuleId) sel); modulePanel.setModule ((ModuleId) sel); }
     else modulePanel.setModule (chain.getSelected());
     refreshMode();
+}
+
+void MixView::setMetersVisible (bool on)
+{
+    metersVisible = on;
+    meterStrip.setVisible (on);
+    resized();
 }
 
 void MixView::refreshMode()
@@ -42,6 +50,7 @@ void MixView::resized()
     modeSimple.setBounds (top.removeFromRight (80));
     modeLabel.setBounds (top);
     r.removeFromTop (8);
+    if (metersVisible) { meterStrip.setBounds (r.removeFromBottom (168)); r.removeFromBottom (8); }
     macros.setBounds (r);
     chain.setBounds (r.removeFromTop (ChainStrip::tileH + 32));
     r.removeFromTop (10);

@@ -12,6 +12,10 @@ you point CMake at an AAX SDK.
 | --- | --- |
 | ![Simple mode](docs/screenshots/vocalyst_mix_simple.png) | ![Advanced mode](docs/screenshots/vocalyst_mix_advanced.png) |
 
+| Tune page | Meters (spectrum + stereo width) |
+| --- | --- |
+| ![Tune](docs/screenshots/vocalyst_tune.png) | ![Meters](docs/screenshots/vocalyst_meters.png) |
+
 | Preset browser | Analyze | Vocalyst Auto Key |
 | --- | --- | --- |
 | ![Presets](docs/screenshots/vocalyst_presets.png) | ![Analyze](docs/screenshots/vocalyst_analyze.png) | ![Auto Key](docs/screenshots/autokey.png) |
@@ -21,9 +25,11 @@ you point CMake at an AAX SDK.
 - **96 presets**: 59 main-vocal and 37 ad-lib chains grouped by genre (Pop, R&B, Trap, Rage, Hip-Hop, Soul, Afrobeats, Indie, Hyperpop, Plugg). Every preset is a full effect chain you can open and edit.
 - **27 vocal effects in one plugin**: add, remove and drag effects into any order, with per-module bypass.
 - **Simple and Advanced mode**: Simple gives six macros (Tune, Clean, Tone, Drive, Width, Space) that bend the loaded preset without editing it. Advanced exposes every parameter of every effect.
-- **Tune**: real-time monophonic pitch correction (YIN detection + period-synchronous shifter) with Amount, Speed and Humanize, snapping to the selected key and scale. Latency is reported to the host only while Tune is active.
+- **Tune page**: real-time pitch correction with its own tab. Pick key and scale, click keys on a keyboard to allow or forbid individual notes, choose the voice range, and shape it with Amount, Retune Speed, Humanize, Flex-Tune (leave far-off notes expressive), Vibrato (scale the singer's own vibrato) and Transpose. NATURAL / TIGHT / HARD shortcuts, a scrolling sung-vs-corrected pitch graph, and optional MIDI control where held notes become the allowed notes. Latency is reported only while Tune is active.
 - **Auto Key**: a chroma-based key finder inside Vocalyst (detect from the vocal itself) **and** the separate *Vocalyst Auto Key* plugin for the instrumental or master bus, linked to Vocalyst through a small shared file so the key follows automatically.
-- **Analyze**: listens to the raw vocal (level, noise floor, dynamics, mud, presence, sibilance, air) and proposes Low Cut, Gate, De-Esser, Compressor and EQ settings you can apply in one click.
+- **Analyze**: measures the raw vocal while the song plays (noise floor, loudness percentiles, crest factor, plosives, sibilance level, long-term spectrum with tilt, resonances and harshness) and proposes Low Cut, Gate, De-Esser, Compressor/Glue and EQ settings with the reasoning for each, applied in one click.
+- **Meters**: toggleable strip with an input-vs-output spectrum analyzer and stereo width per band (8 bands, phase problems shown in red), plus input/output loudness.
+- **Loudness match and bypass**: A/B the processed vocal against the dry one at equal loudness; bypass keeps the dry signal time-aligned with the reported latency.
 - **Community tab**: a local shared-preset library (`Documents/Vocalyst/Community/*.vocalystpreset`) to share, import and load chains from other users. No online account needed.
 - **Key display**: key and scale selectors in the header, with 9 scales including chromatic, pentatonic and blues.
 
