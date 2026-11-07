@@ -67,15 +67,17 @@ static void testPresets (VocalystProcessor& p)
 {
     std::cout << "Presets\n";
     auto& f = presets::factory();
-    CHECK (f.size() == 96, "96 factory presets (" + juce::String ((int) f.size()) + ")");
-    CHECK (presets::count (false) == 59, "59 main vocal presets");
+    CHECK (f.size() == 98, "98 factory presets: 2 init + 59 main + 37 ad-lib (" + juce::String ((int) f.size()) + ")");
+    CHECK (presets::count (false) == 61, "61 main vocal presets incl. 2 Init");
+    CHECK (f[0].name == "Init - Empty" && f[0].chain.empty(), "Init - Empty is first and has no modules");
+    CHECK (f[1].name == "Init - Clean Chain" && f[1].chain.size() == 4, "Init - Clean Chain has 4 transparent modules");
     CHECK (presets::count (true) == 37, "37 ad-lib presets");
     bool idsOk = true, chainOk = true, namesOk = true;
     std::set<juce::String> names;
     for (auto& pr : f)
     {
         if (! names.insert (pr.name).second) namesOk = false;
-        if (pr.chain.empty()) chainOk = false;
+        if (pr.chain.empty() && pr.genre != "Init") chainOk = false;
         for (auto& c : pr.chain) if (findModuleByKey (c) == nullptr) chainOk = false;
         for (auto& kv : pr.values) if (p.apvts.getParameter (kv.first) == nullptr) { idsOk = false; std::cout << "    bad id " << kv.first << " in " << pr.name << "\n"; }
     }
@@ -93,7 +95,7 @@ static void testPresets (VocalystProcessor& p)
         if (p.getCurrentPresetName() != f[(size_t) i].name) loadOk = false;
     }
     CHECK (loadOk, "all presets load with the expected chain length");
-    p.loadFactoryPreset (0);
+    p.loadFactoryPreset (presets::indexOf ("Pop - Radio Ready"));
     CHECK (std::abs (p.apvts.getRawParameterValue ("tune_speed")->load() - 30.f) < 0.01f, "preset value applied (Pop tune speed = 30 ms)");
 
     // JSON round trip
@@ -399,6 +401,7 @@ static void testState()
 {
     std::cout << "State\n";
     VocalystProcessor a;
+    CHECK (a.getCurrentPresetName() == "Init - Clean Chain", "new instance starts on Init - Clean Chain");
     a.loadFactoryPreset (5);
     a.setChainOrder ({ ModuleId::Reverb, ModuleId::Gate, ModuleId::Tune });
     a.setKey (6, scales::Minor);

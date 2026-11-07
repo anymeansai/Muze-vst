@@ -37,7 +37,7 @@ public:
             for (int i = 0; i < 512; ++i) { const float v = 0.3f * (float) std::sin (ph) + 0.03f * (rng.nextFloat() - 0.5f); ph += 2.0 * juce::MathConstants<double>::pi * 233.0 / 44100.0; buf.setSample (0, i, v); buf.setSample (1, i, v); }
             proc.processBlock (buf, midi);
         }
-        proc.loadFactoryPreset (3);
+        proc.loadFactoryPreset (vocalyst::presets::indexOf ("Pop - Dry Intimate"));
 
         auto window = std::make_unique<juce::DocumentWindow> ("Vocalyst", juce::Colours::black, 0);
         auto* editor = new vocalyst::VocalystEditor (proc);

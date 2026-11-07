@@ -22,7 +22,7 @@ you point CMake at an AAX SDK.
 
 ## Features
 
-- **96 presets**: 59 main-vocal and 37 ad-lib chains grouped by genre (Pop, R&B, Trap, Rage, Hip-Hop, Soul, Afrobeats, Indie, Hyperpop, Plugg). Every preset is a full effect chain you can open and edit.
+- **Presets**: two Init presets (an empty chain and a transparent clean chain) to build your own sound from, plus 59 main-vocal and 37 ad-lib chains grouped by genre (Pop, R&B, Trap, Rage, Hip-Hop, Soul, Afrobeats, Indie, Hyperpop, Plugg). Every preset is a full effect chain you can open and edit. A NEW CHAIN button in the browser starts from scratch.
 - **27 vocal effects in one plugin**: add, remove and drag effects into any order, with per-module bypass.
 - **Simple and Advanced mode**: Simple gives six macros (Tune, Clean, Tone, Drive, Width, Space) that bend the loaded preset without editing it. Advanced exposes every parameter of every effect.
 - **Tune page**: real-time pitch correction with its own tab. Pick key and scale, click keys on a keyboard to allow or forbid individual notes, choose the voice range, and shape it with Amount, Retune Speed, Humanize, Flex-Tune (leave far-off notes expressive), Vibrato (scale the singer's own vibrato) and Transpose. NATURAL / TIGHT / HARD shortcuts, a scrolling sung-vs-corrected pitch graph, and optional MIDI control where held notes become the allowed notes. Latency is reported only while Tune is active.

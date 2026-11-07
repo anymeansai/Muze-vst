@@ -271,13 +271,26 @@ def build(genre, variants, adlib):
         out.append((full, genre, "adlib" if adlib else "main", desc, chain, keep))
     return out
 
-presets = []
+# Init presets first: a blank canvas and a transparent utility chain to build on
+INIT = [
+    ("Init - Empty", "Init", "main", "Blank canvas. Open the MIX tab, press + ADD and build your own chain.", [], {}),
+    ("Init - Clean Chain", "Init", "main",
+     "Transparent starting point: low cut, flat EQ, gentle 2:1 compression and a safety limiter.",
+     ["lowcut", "eq", "comp", "limiter"],
+     {"lowcut_freq": 80, "lowcut_q": 0.71,
+      "eq_lowgain": 0, "eq_lowfreq": 150, "eq_mid1gain": 0, "eq_mid1freq": 400, "eq_mid1q": 1.0,
+      "eq_mid2gain": 0, "eq_mid2freq": 3000, "eq_mid2q": 1.0, "eq_highgain": 0, "eq_highfreq": 9000,
+      "comp_thresh": -24, "comp_ratio": 2, "comp_attack": 10, "comp_release": 100, "comp_makeup": 0, "comp_mix": 100,
+      "limiter_gain": 0, "limiter_ceiling": -0.5, "limiter_release": 60}),
+]
+
+presets = list(INIT)
 for g in ["Pop", "R&B", "Trap", "Rage", "Hip-Hop", "Soul", "Afrobeats", "Indie", "Hyperpop", "Plugg"]:
     presets += build(g, MAIN[g], False)
 for g in ["Trap", "R&B", "Rage", "Pop", "Hip-Hop", "Hyperpop", "Plugg", "Afrobeats"]:
     presets += build(g, ADLIB[g], True)
 
-n_main = sum(1 for p in presets if p[2] == "main")
+n_main = sum(1 for p in presets if p[2] == "main" and p[1] != "Init")
 n_adlib = sum(1 for p in presets if p[2] == "adlib")
 assert n_main == 59, n_main
 assert n_adlib == 37, n_adlib
@@ -307,4 +320,4 @@ lines.append("} // namespace vocalyst")
 
 with open(OUT, "w") as f:
     f.write("\n".join(lines) + "\n")
-print(f"wrote {OUT}: {n_main} main + {n_adlib} adlib = {len(presets)} presets")
+print(f"wrote {OUT}: {len(INIT)} init + {n_main} main + {n_adlib} adlib = {len(presets)} presets")

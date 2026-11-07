@@ -10,7 +10,9 @@ PresetBrowserPanel::PresetBrowserPanel (VocalystProcessor& p) : processor (p)
     catAdlib.onClick = [this] { setCategory (Adlib); };
     catUser.onClick  = [this] { setCategory (User); };
 
-    addAndMakeVisible (saveBtn); addAndMakeVisible (deleteBtn); addAndMakeVisible (folderBtn);
+    addAndMakeVisible (saveBtn); addAndMakeVisible (deleteBtn); addAndMakeVisible (folderBtn); addAndMakeVisible (newBtn);
+    newBtn.setColour (juce::TextButton::buttonColourId, colours::accent2().withAlpha (0.25f));
+    newBtn.onClick = [this] { const int i = presets::indexOf ("Init - Empty"); if (i >= 0) { processor.loadFactoryPreset (i); setCategory (MainVocal); } };
     saveBtn.onClick = [this] { saveUserPreset(); };
     deleteBtn.onClick = [this] { deleteUserPreset(); };
     folderBtn.onClick = [] { sharedkey::presetsDirectory().revealToUser(); };
@@ -202,6 +204,8 @@ void PresetBrowserPanel::resized()
     deleteBtn.setBounds (top.removeFromRight (80));
     top.removeFromRight (6);
     saveBtn.setBounds (top.removeFromRight (170));
+    top.removeFromRight (6);
+    newBtn.setBounds (top.removeFromRight (100));
     r.removeFromTop (8);
     auto bottom = r.removeFromBottom (22);
     description.setBounds (bottom);

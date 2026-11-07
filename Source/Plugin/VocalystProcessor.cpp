@@ -113,8 +113,9 @@ VocalystProcessor::VocalystProcessor()
     uiState.setProperty ("autoKeyLink", false, nullptr);
     apvts.state.addChild (uiState, -1, nullptr);
 
+    const int init = juce::jmax (0, presets::indexOf ("Init - Clean Chain"));
     if (! presets::factory().empty())
-        loadFactoryPreset (0);
+        loadFactoryPreset (init);
     else
         setChainOrder (defaultChain());
 

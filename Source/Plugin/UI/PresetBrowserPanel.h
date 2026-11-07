@@ -46,7 +46,7 @@ private:
 
     VocalystProcessor& processor;
     PillButton catMain { "MAIN VOCAL" }, catAdlib { "AD-LIBS" }, catUser { "USER" };
-    juce::TextButton saveBtn { "SAVE AS USER PRESET" }, deleteBtn { "DELETE" }, folderBtn { "OPEN FOLDER" };
+    juce::TextButton saveBtn { "SAVE AS USER PRESET" }, deleteBtn { "DELETE" }, folderBtn { "OPEN FOLDER" }, newBtn { "NEW CHAIN" };
     juce::Label title, description;
     GenreModel genreModel { *this };
     PresetModel presetModel { *this };
