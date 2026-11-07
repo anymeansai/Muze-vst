@@ -1,10 +1,24 @@
 #include "VocalystLookAndFeel.h"
+#include <BinaryData.h>
 
 namespace vocalyst::ui
 {
 
+namespace fonts
+{
+    static juce::Typeface::Ptr load (const void* data, size_t size)
+    {
+        return juce::Typeface::createSystemTypefaceFor (data, size);
+    }
+    juce::Typeface::Ptr regular()  { static juce::Typeface::Ptr t = load (BinaryData::InterRegular_ttf,  (size_t) BinaryData::InterRegular_ttfSize);  return t; }
+    juce::Typeface::Ptr medium()   { static juce::Typeface::Ptr t = load (BinaryData::InterMedium_ttf,   (size_t) BinaryData::InterMedium_ttfSize);   return t; }
+    juce::Typeface::Ptr semibold() { static juce::Typeface::Ptr t = load (BinaryData::InterSemiBold_ttf, (size_t) BinaryData::InterSemiBold_ttfSize); return t; }
+    juce::Typeface::Ptr bold()     { static juce::Typeface::Ptr t = load (BinaryData::InterBold_ttf,     (size_t) BinaryData::InterBold_ttfSize);     return t; }
+}
+
 VocalystLookAndFeel::VocalystLookAndFeel()
 {
+    setDefaultSansSerifTypeface (fonts::regular());
     setColour (juce::ResizableWindow::backgroundColourId, colours::bg());
     setColour (juce::Label::textColourId, colours::text());
     setColour (juce::Slider::textBoxTextColourId, colours::text());

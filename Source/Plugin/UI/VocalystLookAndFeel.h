@@ -19,10 +19,23 @@ namespace colours
     inline juce::Colour ok()         { return juce::Colour (0xff4ade80); }
 }
 
+// Embedded Inter typeface (SIL OFL) so the UI looks identical on every platform.
+namespace fonts
+{
+    juce::Typeface::Ptr regular();
+    juce::Typeface::Ptr medium();
+    juce::Typeface::Ptr semibold();
+    juce::Typeface::Ptr bold();
+}
+
 inline juce::Font font (float height, bool bold = false)
 {
-    return juce::Font (juce::FontOptions (height, bold ? juce::Font::bold : juce::Font::plain));
+    return juce::Font (juce::FontOptions (bold ? fonts::semibold() : fonts::regular()).withHeight (height));
 }
+inline juce::Font fontMedium (float height) { return juce::Font (juce::FontOptions (fonts::medium()).withHeight (height)); }
+inline juce::Font fontBold (float height)   { return juce::Font (juce::FontOptions (fonts::bold()).withHeight (height)); }
+// Small uppercase label style used for section headings
+inline juce::Font fontLabel (float height)  { return fontMedium (height).withExtraKerningFactor (0.08f); }
 
 class VocalystLookAndFeel : public juce::LookAndFeel_V4
 {

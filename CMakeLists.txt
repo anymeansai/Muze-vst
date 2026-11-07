@@ -62,6 +62,13 @@ set(VOCALYST_CORE_SOURCES
     Source/DSP/Modules/ModuleFactory.cpp
 )
 
+# Embedded assets (Inter typeface, SIL OFL)
+juce_add_binary_data(VocalystAssets SOURCES
+    Resources/fonts/Inter-Regular.ttf
+    Resources/fonts/Inter-Medium.ttf
+    Resources/fonts/Inter-SemiBold.ttf
+    Resources/fonts/Inter-Bold.ttf)
+
 add_library(VocalystCore INTERFACE)
 target_sources(VocalystCore INTERFACE ${VOCALYST_CORE_SOURCES})
 target_include_directories(VocalystCore INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
@@ -74,6 +81,7 @@ target_compile_definitions(VocalystCore INTERFACE
     JUCE_MODAL_LOOPS_PERMITTED=0
     JUCE_STRICT_REFCOUNTEDPOINTER=1)
 target_link_libraries(VocalystCore INTERFACE
+    VocalystAssets
     juce::juce_audio_utils
     juce::juce_audio_processors
     juce::juce_dsp
