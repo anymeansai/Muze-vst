@@ -73,6 +73,7 @@ public:
     // Presets (message thread)
     void   loadPreset (const Preset& p);
     void   loadFactoryPreset (int index);
+    void   applyModulePreset (ModuleId id, int presetIndex);   // one effect's named starting point
     void   nextPreset();
     void   prevPreset();
     Preset captureCurrentPreset (const juce::String& name, const juce::String& genre,

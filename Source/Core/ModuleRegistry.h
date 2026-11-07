@@ -14,6 +14,7 @@ enum class ModuleId : int
     Saturation, Distortion, Exciter, LoFi, Telephone,
     Doubler, Harmonizer, Chorus, Flanger, Phaser, Tremolo, AutoPan, Widener,
     Slap, Delay, Reverb,
+    PopFilter, Breath,
     Count
 };
 
@@ -32,6 +33,13 @@ struct ParamSpec
     const char* choices;  // comma-separated list -> AudioParameterChoice (min/max ignored)
 };
 
+// A named starting point for one module (param key -> value in display units)
+struct ModulePreset
+{
+    const char* name;
+    std::vector<std::pair<const char*, float>> values;
+};
+
 struct ModuleSpec
 {
     ModuleId        id;
@@ -40,6 +48,10 @@ struct ModuleSpec
     ModuleCategory  category;
     const char*     description;
     std::vector<ParamSpec> params;
+    std::vector<ModulePreset> presets;
+
+    ModuleSpec (ModuleId i, const char* k, const char* n, ModuleCategory c, const char* d, std::vector<ParamSpec> ps)
+        : id (i), key (k), name (n), category (c), description (d), params (std::move (ps)) {}
 };
 
 const std::vector<ModuleSpec>& allModules();

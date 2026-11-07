@@ -46,10 +46,13 @@ static float measurePitch (const std::vector<float>& signal, double sr, int skip
 static void testRegistry (VocalystProcessor& p)
 {
     std::cout << "Registry\n";
-    CHECK (allModules().size() == 27, "27 effect modules registered");
+    CHECK (allModules().size() == 29, "29 effect modules registered");
     std::set<juce::String> keys;
     for (auto& m : allModules()) keys.insert (m.key);
-    CHECK (keys.size() == 27, "module keys are unique");
+    CHECK (keys.size() == 29, "module keys are unique");
+    bool presetsOk = true; int presetCount = 0;
+    for (auto& m : allModules()) for (auto& mp : m.presets) { ++presetCount; for (auto& kv : mp.values) if (p.apvts.getParameter (paramId (m.id, kv.first)) == nullptr) { presetsOk = false; std::cout << "    bad module preset value " << m.key << "/" << kv.first << "\n"; } }
+    CHECK (presetsOk && presetCount > 60, "per-module presets reference valid parameters (" + juce::String (presetCount) + " presets)");
     bool ordered = true;
     for (int i = 0; i < kNumModules; ++i) if ((int) allModules()[(size_t) i].id != i) ordered = false;
     CHECK (ordered, "registry order matches ModuleId enum");
@@ -67,10 +70,11 @@ static void testPresets (VocalystProcessor& p)
 {
     std::cout << "Presets\n";
     auto& f = presets::factory();
-    CHECK (f.size() == 98, "98 factory presets: 2 init + 59 main + 37 ad-lib (" + juce::String ((int) f.size()) + ")");
-    CHECK (presets::count (false) == 61, "61 main vocal presets incl. 2 Init");
+    CHECK (f.size() == 99, "99 factory presets: 3 init + 59 main + 37 ad-lib (" + juce::String ((int) f.size()) + ")");
+    CHECK (presets::count (false) == 62, "62 main vocal presets incl. 3 Init");
     CHECK (f[0].name == "Init - Empty" && f[0].chain.empty(), "Init - Empty is first and has no modules");
-    CHECK (f[1].name == "Init - Clean Chain" && f[1].chain.size() == 4, "Init - Clean Chain has 4 transparent modules");
+    CHECK (f[1].name == "Init - Clean Chain" && f[1].chain.size() == 7, "Init - Clean Chain has 7 hygiene modules");
+    CHECK (f[2].name == "Init - Full Chain" && f[2].chain.size() == 15, "Init - Full Chain has 15 neutral modules");
     CHECK (presets::count (true) == 37, "37 ad-lib presets");
     bool idsOk = true, chainOk = true, namesOk = true;
     std::set<juce::String> names;
@@ -107,7 +111,7 @@ static void testPresets (VocalystProcessor& p)
 
 static void testChainStability (VocalystProcessor& p)
 {
-    std::cout << "DSP stability (all 27 modules active)\n";
+    std::cout << "DSP stability (all 29 modules active)\n";
     const double sr = 44100.0; const int block = 512;
     p.prepareToPlay (sr, block);
     std::vector<ModuleId> all;
@@ -145,6 +149,23 @@ static void testChainStability (VocalystProcessor& p)
 static void testEachModule (VocalystProcessor& p)
 {
     std::cout << "Each module alone passes signal\n";
+    {
+        const double sr = 44100.0; const int block = 512;
+        // pop filter: a low thump gets attenuated, steady voice-range tone passes
+        p.prepareToPlay (sr, block);
+        p.setChainOrder ({ ModuleId::PopFilter });
+        p.apvts.getParameter (enableId (ModuleId::PopFilter))->setValueNotifyingHost (1.f);
+        juce::AudioBuffer<float> tb (2, block); juce::MidiBuffer mb; double ph = 0.0;
+        for (int b = 0; b < 60; ++b) { fillSine (tb, 300.0, sr, ph, 0.2f); p.processBlock (tb, mb); }
+        float thumpIn = 0.f, thumpOut = 0.f;
+        for (int b = 0; b < 6; ++b)
+        {
+            for (int i = 0; i < block; ++i) { const float v = 0.2f * (float) std::sin (ph) + 0.6f * (float) std::sin (2.0 * juce::MathConstants<double>::pi * 50.0 * (b * block + i) / sr); ph += 2.0 * juce::MathConstants<double>::pi * 300.0 / sr; tb.setSample (0, i, v); tb.setSample (1, i, v); thumpIn += v * v; }
+            p.processBlock (tb, mb);
+            for (int i = 0; i < block; ++i) thumpOut += tb.getSample (0, i) * tb.getSample (0, i);
+        }
+        CHECK (thumpOut < thumpIn * 0.5f, "pop filter attenuates a 50 Hz thump (" + juce::String (10.f * std::log10 (thumpOut / thumpIn), 1) + " dB)");
+    }
     const double sr = 44100.0; const int block = 512;
     bool allOk = true;
     for (int id = 0; id < kNumModules; ++id)
@@ -168,7 +189,7 @@ static void testEachModule (VocalystProcessor& p)
         const bool ok = finite && rms > 0.01f && rms < 1.5f;
         if (! ok) { allOk = false; std::cout << "    " << moduleSpec ((ModuleId) id).name << " rms=" << rms << " finite=" << finite << "\n"; }
     }
-    CHECK (allOk, "all 27 modules produce finite, non-silent output on their own");
+    CHECK (allOk, "all 29 modules produce finite, non-silent output on their own");
 }
 
 static void testPitchDetector()

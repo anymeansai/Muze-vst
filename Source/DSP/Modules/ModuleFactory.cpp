@@ -837,6 +837,93 @@ private:
     double sr = 44100.0; juce::Reverb reverb; DelayLine pre[2]; SVF tone[2]; EnvelopeFollower duckEnv; juce::AudioBuffer<float> wet;
 };
 
+//==============================================================================
+// Dynamic plosive filter: a high-pass that only rises while a low-frequency thump is happening.
+class PopFilterModule final : public Module
+{
+public:
+    PopFilterModule() : Module (ModuleId::PopFilter) {}
+    void prepare (double sampleRate, int) override
+    {
+        sr = sampleRate;
+        detect.set (110.f, 0.707f, sr);
+        fastEnv.set (0.3f, 60.f, sr);
+        slowEnv.set (60.f, 600.f, sr);
+        fullEnv.set (0.3f, 60.f, sr);
+        aUp = msToCoeff (0.8f, sr);
+        reset();
+    }
+    void reset() override { detect.reset(); fastEnv.reset(); slowEnv.reset(); fullEnv.reset(); for (auto& f : hp) f.reset(); cutoff = 20.f; lastSet = -1.f; }
+    void process (juce::AudioBuffer<float>& b, const ProcessInfo& info) override
+    {
+        const float sens = pct (p (0)) * juce::jlimit (0.5f, 1.5f, info.cleanFactor);
+        const float ratioNeeded = 10.f - sens * 8.5f;             // 10x (quiet) .. 1.5x (eager) above the running low-end level
+        const float maxCut = 60.f + pct (p (1)) * 240.f;           // up to 300 Hz while a plosive lasts
+        const float aDown = msToCoeff (p (2), sr);
+        auto* L = b.getWritePointer (0); auto* R = b.getWritePointer (1);
+        for (int i = 0; i < b.getNumSamples(); ++i)
+        {
+            const float mono = 0.5f * (L[i] + R[i]);
+            const float low = detect.lowpass (mono);
+            const float lf = fastEnv.process (low);
+            const float ref = slowEnv.process (low);
+            const float full = fullEnv.process (mono);
+            const bool thump = lf > 0.01f && lf > ref * ratioNeeded && lf > full * 0.6f;
+            const float target = thump ? maxCut : 20.f;
+            cutoff = target + (target > cutoff ? aUp : aDown) * (cutoff - target);
+            if (std::abs (cutoff - lastSet) > 1.f) { for (auto& f : hp) f.set (cutoff, 0.707f, sr); lastSet = cutoff; }
+            L[i] = hp[0].highpass (L[i]);
+            R[i] = hp[1].highpass (R[i]);
+        }
+    }
+private:
+    double sr = 44100.0; SVF detect, hp[2]; EnvelopeFollower fastEnv, slowEnv, fullEnv; float cutoff = 20.f, lastSet = -1.f, aUp = 0.f;
+};
+
+//==============================================================================
+// Breath control: quiet, noisy (high zero-crossing / high-frequency heavy) passages are turned down.
+class BreathModule final : public Module
+{
+public:
+    BreathModule() : Module (ModuleId::Breath) {}
+    void prepare (double sampleRate, int) override
+    {
+        sr = sampleRate;
+        hpf.set (3000.f, 0.707f, sr);
+        levelEnv.set (5.f, 80.f, sr);
+        hfEnv.set (5.f, 80.f, sr);
+        aAtt = msToCoeff (8.f, sr);
+        zcrCoeff = msToCoeff (40.f, sr);
+        reset();
+    }
+    void reset() override { hpf.reset(); levelEnv.reset(); hfEnv.reset(); gain = 1.f; zcr = 0.f; lastPositive = true; }
+    void process (juce::AudioBuffer<float>& b, const ProcessInfo& info) override
+    {
+        const float sens = pct (p (0)) * juce::jlimit (0.5f, 1.5f, info.cleanFactor);
+        const float threshLin = dbToGain (-48.f + sens * 24.f);   // breaths louder than this still count: -48 dB .. -24 dB
+        const float reductionGain = dbToGain (-p (1));
+        const float aRel = msToCoeff (p (2), sr);
+        auto* L = b.getWritePointer (0); auto* R = b.getWritePointer (1);
+        for (int i = 0; i < b.getNumSamples(); ++i)
+        {
+            const float mono = 0.5f * (L[i] + R[i]);
+            const float level = levelEnv.process (mono);
+            const float hf = hfEnv.process (hpf.highpass (mono));
+            const bool positive = mono >= 0.f;
+            const float crossing = positive != lastPositive ? 1.f : 0.f;
+            lastPositive = positive;
+            zcr = crossing + zcrCoeff * (zcr - crossing);           // fraction of samples with a sign change
+            const bool noisy = hf > level * 0.35f || zcr > 0.12f;
+            const bool breath = level > 0.0003f && level < threshLin && noisy;
+            const float target = breath ? reductionGain : 1.f;
+            gain = target + (target < gain ? aAtt : aRel) * (gain - target);
+            L[i] *= gain; R[i] *= gain;
+        }
+    }
+private:
+    double sr = 44100.0; SVF hpf; EnvelopeFollower levelEnv, hfEnv; float gain = 1.f, zcr = 0.f, aAtt = 0.f, zcrCoeff = 0.f; bool lastPositive = true;
+};
+
 } // namespace
 
 //==============================================================================
@@ -871,6 +958,8 @@ std::unique_ptr<Module> createModule (ModuleId id)
         case ModuleId::Slap:        return std::make_unique<SlapModule>();
         case ModuleId::Delay:       return std::make_unique<DelayModule>();
         case ModuleId::Reverb:      return std::make_unique<ReverbModule>();
+        case ModuleId::PopFilter:   return std::make_unique<PopFilterModule>();
+        case ModuleId::Breath:      return std::make_unique<BreathModule>();
         case ModuleId::Count:
         default: jassertfalse;     return std::make_unique<GateModule>();
     }

@@ -17,6 +17,14 @@ ModulePanel::ModulePanel (VocalystProcessor& p) : processor (p)
     addAndMakeVisible (power);
     removeBtn.onClick = [this] { if (current != ModuleId::Count) processor.removeModule (current); };
     addAndMakeVisible (removeBtn);
+    presetBox.setTextWhenNothingSelected ("PRESET");
+    presetBox.onChange = [this]
+    {
+        const int idx = presetBox.getSelectedId() - 1;
+        if (idx >= 0 && current != ModuleId::Count) processor.applyModulePreset (current, idx);
+        presetBox.setSelectedId (0, juce::dontSendNotification);
+    };
+    addAndMakeVisible (presetBox);
     setModule (ModuleId::Count);
 }
 
@@ -25,7 +33,8 @@ void ModulePanel::setModule (ModuleId id)
     current = id;
     knobs.clear(); combos.clear(); comboLabels.clear(); comboAtts.clear(); powerAtt.reset();
     const bool valid = id != ModuleId::Count;
-    power.setVisible (valid); removeBtn.setVisible (valid); category.setVisible (valid);
+    power.setVisible (valid); removeBtn.setVisible (valid); category.setVisible (valid); presetBox.setVisible (valid);
+    presetBox.clear (juce::dontSendNotification);
     if (! valid)
     {
         title.setText ("No module selected", juce::dontSendNotification);
@@ -38,6 +47,8 @@ void ModulePanel::setModule (ModuleId id)
     description.setText (spec.description, juce::dontSendNotification);
     category.setText (juce::String (categoryName (spec.category)).toUpperCase(), juce::dontSendNotification);
     category.setColour (juce::Label::textColourId, categoryColour (spec.category));
+    for (int i = 0; i < (int) spec.presets.size(); ++i) presetBox.addItem (spec.presets[(size_t) i].name, i + 1);
+    presetBox.setEnabled (! spec.presets.empty());
     if (auto* param = processor.apvts.getParameter (enableId (id)))
         powerAtt = std::make_unique<juce::ButtonParameterAttachment> (*param, power);
     for (auto& ps : spec.params)
@@ -83,6 +94,8 @@ void ModulePanel::resized()
     auto head = r.removeFromTop (44);
     if (power.isVisible()) { power.setBounds (head.removeFromLeft (26).withSizeKeepingCentre (22, 22)); head.removeFromLeft (8); }
     removeBtn.setBounds (head.removeFromRight (160).reduced (0, 8));
+    head.removeFromRight (8);
+    presetBox.setBounds (head.removeFromRight (150).reduced (0, 8));
     head.removeFromRight (8);
     category.setBounds (head.removeFromRight (90).reduced (0, 12));
     title.setBounds (head.removeFromTop (24));

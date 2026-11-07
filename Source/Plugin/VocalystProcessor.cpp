@@ -500,6 +500,18 @@ void VocalystProcessor::loadPreset (const Preset& preset)
     listeners.call ([] (Listener& l) { l.presetChanged(); });
 }
 
+void VocalystProcessor::applyModulePreset (ModuleId id, int presetIndex)
+{
+    auto& spec = moduleSpec (id);
+    if (presetIndex < 0 || presetIndex >= (int) spec.presets.size()) return;
+    for (auto& kv : spec.presets[(size_t) presetIndex].values)
+        setParamValue (paramId (id, kv.first), kv.second);
+    const auto name = getCurrentPresetName();
+    if (! name.endsWith (" *")) uiState.setProperty ("presetName", name + " *", nullptr);
+    currentFactoryIndex = -1;
+    listeners.call ([] (Listener& l) { l.presetChanged(); });
+}
+
 void VocalystProcessor::loadFactoryPreset (int index)
 {
     auto& f = presets::factory();

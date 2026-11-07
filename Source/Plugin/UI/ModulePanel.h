@@ -20,6 +20,7 @@ private:
     juce::ToggleButton power;
     std::unique_ptr<juce::ButtonParameterAttachment> powerAtt;
     juce::TextButton removeBtn { "REMOVE FROM CHAIN" };
+    juce::ComboBox presetBox;
     std::vector<std::unique_ptr<Knob>> knobs;
     std::vector<std::unique_ptr<juce::ComboBox>> combos;
     std::vector<std::unique_ptr<juce::Label>> comboLabels;

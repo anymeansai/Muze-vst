@@ -22,8 +22,8 @@ you point CMake at an AAX SDK.
 
 ## Features
 
-- **Presets**: two Init presets (an empty chain and a transparent clean chain) to build your own sound from, plus 59 main-vocal and 37 ad-lib chains grouped by genre (Pop, R&B, Trap, Rage, Hip-Hop, Soul, Afrobeats, Indie, Hyperpop, Plugg). Every preset is a full effect chain you can open and edit. A NEW CHAIN button in the browser starts from scratch.
-- **27 vocal effects in one plugin**: add, remove and drag effects into any order, with per-module bypass.
+- **Presets**: three Init presets (empty, a hygiene-only clean chain, and a full chain with every tool set neutral) to build your own sound from, plus 59 main-vocal and 37 ad-lib chains grouped by genre (Pop, R&B, Trap, Rage, Hip-Hop, Soul, Afrobeats, Indie, Hyperpop, Plugg). Every preset is a full effect chain you can open and edit. A NEW CHAIN button in the browser starts from scratch.
+- **29 vocal effects in one plugin**: add, remove and drag effects into any order, with per-module bypass. Every effect has its own PRESET menu with professional starting points (Gentle / Medium / Strong de-essing, Vocal Lead / Smooth / Punchy / Parallel compression, Vocal Plate / Hall reverb, Eighth Pop / Dotted Throw delay and so on).
 - **Simple and Advanced mode**: Simple gives six macros (Tune, Clean, Tone, Drive, Width, Space) that bend the loaded preset without editing it. Advanced exposes every parameter of every effect.
 - **Tune page**: real-time pitch correction with its own tab. Pick key and scale, click keys on a keyboard to allow or forbid individual notes, choose the voice range, and shape it with Amount, Retune Speed, Humanize, Flex-Tune (leave far-off notes expressive), Vibrato (scale the singer's own vibrato) and Transpose. NATURAL / TIGHT / HARD shortcuts, a scrolling sung-vs-corrected pitch graph, and optional MIDI control where held notes become the allowed notes. Latency is reported only while Tune is active.
 - **Auto Key**: a chroma-based key finder inside Vocalyst (detect from the vocal itself) **and** the separate *Vocalyst Auto Key* plugin for the instrumental or master bus, linked to Vocalyst through a small shared file so the key follows automatically.
@@ -33,11 +33,13 @@ you point CMake at an AAX SDK.
 - **Community tab**: a local shared-preset library (`Documents/Vocalyst/Community/*.vocalystpreset`) to share, import and load chains from other users. No online account needed.
 - **Key display**: key and scale selectors in the header, with 9 scales including chromatic, pentatonic and blues.
 
-### The 27 modules
+### The 29 modules
 
 | Clean | Dynamics | Tone | Color | Modulation | Space |
 | --- | --- | --- | --- | --- | --- |
 | Gate | Compressor | EQ (4-band) | Saturation | Doubler | Slap |
+| Pop Filter (plosives) | | | | | |
+| Breath Control | | | | | |
 | Tune (pitch correction) | Glue Comp | Air | Distortion | Harmonizer | Delay (tempo-synced, ducking) |
 | Low Cut | Limiter | | Exciter | Chorus | Reverb (pre-delay, ducking) |
 | High Cut | Transient | | Lo-Fi | Flanger | |
