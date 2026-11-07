@@ -1,0 +1,26 @@
+#!/bin/bash
+# Final step of the Vocalyst installer. Runs as root once the files are in place.
+
+# 1. Nudge the AudioUnit registry so Logic Pro / GarageBand list the new plug-ins without a reboot.
+killall -9 AudioComponentRegistrar > /dev/null 2>&1 || true
+
+# 2. Offer to move the downloaded installer to the Trash (graphical installs only).
+[ -n "${COMMAND_LINE_INSTALL:-}" ] && exit 0
+PKG="${PACKAGE_PATH:-}"
+case "$PKG" in *.pkg) ;; *) exit 0 ;; esac
+[ -f "$PKG" ] || exit 0
+
+USER_NAME=$(stat -f %Su /dev/console 2> /dev/null || true)
+{ [ -n "$USER_NAME" ] && [ "$USER_NAME" != "root" ]; } || exit 0
+USER_ID=$(id -u "$USER_NAME")
+NAME=$(basename "$PKG")
+
+ANSWER=$(launchctl asuser "$USER_ID" sudo -u "$USER_NAME" osascript \
+    -e "button returned of (display dialog \"Vocalyst is installed.\n\nMove the installer \\\"$NAME\\\" to the Trash?\" buttons {\"Keep\", \"Move to Trash\"} default button \"Move to Trash\" with title \"Vocalyst\" with icon note giving up after 120)" \
+    2> /dev/null || true)
+
+if [ "$ANSWER" = "Move to Trash" ]; then
+    launchctl asuser "$USER_ID" sudo -u "$USER_NAME" osascript \
+        -e "tell application \"Finder\" to delete (POSIX file \"$PKG\" as alias)" > /dev/null 2>&1 || true
+fi
+exit 0

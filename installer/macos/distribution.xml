@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>Vocalyst @VERSION@</title>
+    <organization>ai.anymeans</organization>
+    <options customize="allow" require-scripts="false" rootVolumeOnly="true" hostArchitectures="x86_64,arm64"/>
+    <domains enable_localSystem="true"/>
+    <welcome file="welcome.html" mime-type="text/html"/>
+    <license file="license.txt" mime-type="text/plain"/>
+    <conclusion file="conclusion.html" mime-type="text/html"/>
+
+    <choices-outline>
+        <line choice="vst3"/>
+        <line choice="au"/>
+        <line choice="apps"/>
+        <line choice="finish"/>
+    </choices-outline>
+
+    <choice id="vst3" title="VST3 plug-ins" start_selected="true"
+            description="Vocalyst and Vocalyst Auto Key for Ableton Live, FL Studio, Reaper, Cubase, Studio One, Bitwig and other VST3 hosts. Installed in /Library/Audio/Plug-Ins/VST3.">
+        <pkg-ref id="ai.anymeans.vocalyst.vst3"/>
+    </choice>
+    <choice id="au" title="Audio Unit plug-ins" start_selected="true"
+            description="Vocalyst and Vocalyst Auto Key for Logic Pro and GarageBand. Installed in /Library/Audio/Plug-Ins/Components.">
+        <pkg-ref id="ai.anymeans.vocalyst.au"/>
+    </choice>
+    <choice id="apps" title="Standalone apps" start_selected="true"
+            description="Run Vocalyst and Vocalyst Auto Key without a DAW. Installed in /Applications.">
+        <pkg-ref id="ai.anymeans.vocalyst.apps"/>
+    </choice>
+    <choice id="finish" visible="false" start_selected="true" start_enabled="false">
+        <pkg-ref id="ai.anymeans.vocalyst.finish"/>
+    </choice>
+
+    <pkg-ref id="ai.anymeans.vocalyst.vst3"   version="@VERSION@" onConclusion="none">vst3.pkg</pkg-ref>
+    <pkg-ref id="ai.anymeans.vocalyst.au"     version="@VERSION@" onConclusion="none">au.pkg</pkg-ref>
+    <pkg-ref id="ai.anymeans.vocalyst.apps"   version="@VERSION@" onConclusion="none">apps.pkg</pkg-ref>
+    <pkg-ref id="ai.anymeans.vocalyst.finish" version="@VERSION@" onConclusion="none">finish.pkg</pkg-ref>
+</installer-gui-script>

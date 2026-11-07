@@ -1,26 +1,38 @@
 # Installing Vocalyst on macOS
 
-This zip contains universal (Apple Silicon + Intel) builds of **Vocalyst** and **Vocalyst Auto Key**:
+## The easy way: the installer
 
-- `VST3/Vocalyst.vst3`, `VST3/Vocalyst Auto Key.vst3`
-- `AU/Vocalyst.component`, `AU/Vocalyst Auto Key.component` (Logic, GarageBand)
-- `Standalone/Vocalyst.app`, `Standalone/Vocalyst Auto Key.app`
+1. On the Releases page, download **Vocalyst-x.y.z-macOS-Installer.pkg**.
+2. Double-click it. The installer offers three parts you can tick or untick:
+   - **VST3 plug-ins** (Ableton Live, FL Studio, Reaper, Cubase, Studio One, Bitwig ...) -> `/Library/Audio/Plug-Ins/VST3`
+   - **Audio Unit plug-ins** (Logic Pro, GarageBand) -> `/Library/Audio/Plug-Ins/Components`
+   - **Standalone apps** -> `/Applications`
+3. Enter your Mac password when asked. At the end it refreshes Logic's plug-in list and asks whether to move the
+   downloaded installer to the Trash.
+4. Open your DAW and rescan plug-ins if needed (Logic Pro: just restart it).
 
-## 1. Copy the plugins
+### "Apple could not verify ..." when opening the installer
 
-Copy the bundles into your user plugin folders (create the folders if they do not exist):
+The installer is not notarized by Apple (that needs a paid Apple Developer account), so macOS blocks it once.
+This is the only hurdle:
+
+- **macOS 15 Sequoia or newer**: double-click the .pkg, click **Done** on the warning, then open
+  **System Settings > Privacy & Security**, scroll down to the message about the installer and click **Open Anyway**.
+  Double-click the .pkg again.
+- **macOS 13 / 14**: right-click (or Control-click) the .pkg, choose **Open**, then click **Open** in the dialog.
+
+Plug-ins placed by the installer are not quarantined, so your DAW loads them without further warnings.
+
+## The manual way: the zip
+
+`Vocalyst-macOS.zip` contains the same bundles. Copy them yourself into:
 
 ```
 ~/Library/Audio/Plug-Ins/VST3/
 ~/Library/Audio/Plug-Ins/Components/
 ```
 
-In Finder: press Cmd+Shift+G, paste the path, drop the bundle in.
-
-## 2. Remove the download quarantine (important)
-
-These builds are signed ad-hoc, not notarized by Apple, so macOS blocks them after a browser download
-("cannot be opened because the developer cannot be verified"). Clear the quarantine flag once:
+Because they came from a browser download, clear the quarantine flag once in Terminal, otherwise the DAW refuses them:
 
 ```
 xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/Vocalyst.vst3
@@ -29,20 +41,9 @@ xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/Vocalyst.comp
 xattr -dr com.apple.quarantine "~/Library/Audio/Plug-Ins/Components/Vocalyst Auto Key.component"
 ```
 
-(Open Terminal, paste the lines, press Enter.)
-
-## 3. Rescan plugins
-
-- **Ableton Live**: Settings > Plug-Ins > Rescan (enable VST3 custom folder if needed).
-- **Logic Pro / GarageBand**: restart Logic; if the AU does not show, run `auval -a` in Terminal or open Logic's Plug-in Manager and reset.
-- **FL Studio**: Options > Manage plugins > Find more plugins.
-- **Reaper**: Preferences > Plug-ins > VST > Re-scan.
-
-## 4. Use it
+## Using it
 
 1. Put **Vocalyst** on the vocal track, pick a preset in the PRESETS tab.
-2. Put **Vocalyst Auto Key** on the beat or master bus, press SEND TO VOCALYST (or leave AUTO SEND on).
+2. Put **Vocalyst Auto Key** on the beat or master bus (AUTO SEND is on by default).
 3. In Vocalyst press **AUTO KEY** > "Pull key from Vocalyst Auto Key", or detect the key from the vocal itself.
 4. Press **ANALYZE**, play the vocal, apply the suggestions, then shape it with the SIMPLE macros or the ADVANCED chain.
-
-Trouble? The Standalone app in this zip runs without a DAW (right-click > Open the first time).

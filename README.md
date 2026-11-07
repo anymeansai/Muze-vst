@@ -45,12 +45,16 @@ Amount, Speed and Humanize, snapping to the selected key/scale. Latency is repor
 
 ## Download (macOS, Windows, Linux)
 
-Every push builds all three platforms on GitHub Actions. Open the **Actions** tab of this repository, pick the latest
-green run, and download `Vocalyst-macOS` (universal VST3 + AU + Standalone), `Vocalyst-Windows` or `Vocalyst-Linux` from
-*Artifacts*. Tagging a commit `v1.0.0` publishes the same zips on the **Releases** page.
+Grab the latest build from the **Releases** page of this repository:
 
-macOS users: the bundles are ad-hoc signed, not notarized, so follow [docs/INSTALL-macOS.md](docs/INSTALL-macOS.md)
-(copy to `~/Library/Audio/Plug-Ins/VST3`, clear the quarantine flag with `xattr`, rescan).
+- **macOS**: `Vocalyst-x.y.z-macOS-Installer.pkg`. A normal Apple installer with checkboxes for VST3, Audio Unit and the
+  standalone apps (universal, Apple Silicon + Intel). It is not notarized, so macOS asks you to allow it once; see
+  [docs/INSTALL-macOS.md](docs/INSTALL-macOS.md). `Vocalyst-macOS.zip` has the raw bundles for manual installs.
+- **Windows**: `Vocalyst-Windows.zip` (copy the `.vst3` folders into `C:\Program Files\Common Files\VST3`).
+- **Linux**: `Vocalyst-Linux.tar.gz` (copy the `.vst3` folders into `~/.vst3`).
+
+Every push also builds all three platforms on GitHub Actions; the zips are available under *Artifacts* on each run.
+Publishing a release tagged `vX.Y.Z` (or running the workflow manually with that tag) attaches the files to it.
 
 ## Building
 

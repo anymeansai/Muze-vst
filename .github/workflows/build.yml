@@ -82,12 +82,31 @@ jobs:
           lipo -archs "build/Vocalyst_artefacts/Release/VST3/Vocalyst.vst3/Contents/MacOS/Vocalyst"
           cd dist && ditto -c -k --keepParent Vocalyst-macOS Vocalyst-macOS.zip
 
+      - name: Build macOS installer (.pkg)
+        if: runner.os == 'macOS'
+        run: installer/macos/build-pkg.sh build dist
+
+      - name: Test-install the .pkg
+        if: runner.os == 'macOS'
+        run: |
+          set -e
+          sudo installer -pkg dist/Vocalyst-*-macOS-Installer.pkg -target / -verbose
+          test -d "/Library/Audio/Plug-Ins/VST3/Vocalyst.vst3"
+          test -d "/Library/Audio/Plug-Ins/VST3/Vocalyst Auto Key.vst3"
+          test -d "/Library/Audio/Plug-Ins/Components/Vocalyst.component"
+          test -d "/Library/Audio/Plug-Ins/Components/Vocalyst Auto Key.component"
+          test -d "/Applications/Vocalyst.app"
+          test -d "/Applications/Vocalyst Auto Key.app"
+          echo "installer placed every bundle correctly"
+
       - name: Upload macOS build
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: Vocalyst-macOS
-          path: dist/Vocalyst-macOS.zip
+          path: |
+            dist/Vocalyst-macOS.zip
+            dist/Vocalyst-*-macOS-Installer.pkg
 
       - name: Validate VST3 with pluginval (macOS)
         if: runner.os == 'macOS'
@@ -169,7 +188,7 @@ jobs:
         run: |
           TAG="${{ github.event.inputs.release_tag }}"
           if [ -z "$TAG" ]; then TAG="${GITHUB_REF_NAME}"; fi
-          FILES="artifacts/Vocalyst-macOS/Vocalyst-macOS.zip artifacts/Vocalyst-Windows/Vocalyst-Windows.zip artifacts/Vocalyst-Linux/Vocalyst-Linux.tar.gz"
+          FILES="artifacts/Vocalyst-macOS/*.pkg artifacts/Vocalyst-macOS/Vocalyst-macOS.zip artifacts/Vocalyst-Windows/Vocalyst-Windows.zip artifacts/Vocalyst-Linux/Vocalyst-Linux.tar.gz"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
             gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber $FILES
           else
